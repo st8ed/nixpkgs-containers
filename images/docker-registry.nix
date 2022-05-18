@@ -1,8 +1,6 @@
-{ pkgs, lib, nixos, bash, coreutils, dockerLib, enableProxy ? false }:
+{ dockerTools, nixos, lib, enableProxy ? false }:
 
-dockerLib.buildFromNixos rec {
-  name = "docker-registry";
-
+let
   system = nixos {
     services.dockerRegistry = {
       enable = true;
@@ -19,6 +17,11 @@ dockerLib.buildFromNixos rec {
     users.groups.docker-registry.gid = 1000;
   };
 
+in
+dockerTools.buildFromNixos rec {
+  name = "docker-registry";
+
+  inherit system;
   entryService = "docker-registry";
 
   extraConfig = {
@@ -29,6 +32,4 @@ dockerLib.buildFromNixos rec {
       "${system.config.services.dockerRegistry.storagePath}" = { };
     };
   };
-
-  extraPaths = [ bash coreutils ];
 }

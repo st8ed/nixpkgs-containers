@@ -1,10 +1,9 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/master";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable } @ inputs:
+  outputs = { self, nixpkgs } @ inputs:
     let
       inherit (nixpkgs) lib;
       supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
@@ -32,7 +31,7 @@
                   ".#$1" \
                    --no-link --json | jq -r .[0].outputs.out
               )"
-              dest="$2/library/$1:${pkgs.dockerLib.rev}"
+              dest="$2/library/$1:${pkgs.dockerTools.rev}"
 
               digest_file=$(mktemp imageDigest-XXXX)
               "$src" | gzip --fast \
@@ -50,30 +49,30 @@
       overlay = lib.composeManyExtensions [
         (import ./lib.nix)
         (pkgs: super: {
-          dockerLib = super.dockerLib.overrideScope' (self: super: {
+
+        })
+        (pkgs: super: {
+          dockerTools = super.dockerTools.overrideScope' (self: super: {
             rev = "${lib.substring 0 8 (nixpkgs.lastModifiedDate or nixpkgs.lastModified or "19700101")}.${nixpkgs.shortRev or "dirty"}";
             enableStreaming = true; # if inputs.self ? shortRev then false else true;
             includeStorePaths = true;
           });
 
+          haproxy-ingress = pkgs.callPackage ./pkgs/haproxy-ingress.nix { };
+
+          gitea-docker-entrypoint = pkgs.callPackage ./pkgs/gitea-docker-entrypoint.nix {
+            gitea = pkgs.gitea.override {
+              pamSupport = false;
+            };
+          };
+
           dockerImages = pkgs.lib.makeScope super.newScope (self: {
             docker-registry = pkgs.callPackage ./images/docker-registry.nix { };
 
-            gitea = pkgs.callPackage ./images/gitea {
-              # Pick fresh version from unstable
-              gitea = pkgs.callPackage
-                (
-                  nixpkgs-unstable.legacyPackages."${super.system}".gitea.override
-                )
-                {
-                  buildGoPackage = super.buildGo117Package;
-                };
-            };
+            gitea = pkgs.callPackage ./images/gitea.nix { };
 
-            haproxy = pkgs.callPackage ./images/haproxy/image-haproxy.nix { };
-            haproxy-ingress = pkgs.callPackage ./images/haproxy/image-ingress.nix {
-              haproxy-ingress = pkgs.callPackage ./images/haproxy/ingress.nix { };
-            };
+            haproxy = pkgs.callPackage ./images/haproxy.nix { };
+            haproxy-ingress = pkgs.callPackage ./images/haproxy-ingress.nix { };
 
             home-assistant = pkgs.callPackage ./images/home-assistant.nix { };
             minio = pkgs.callPackage ./images/minio.nix { };

@@ -1,7 +1,7 @@
-{ pkgs, haproxy, dockerLib, iana-etc, dockerTools }:
+{ dockerTools, haproxy, iana-etc, cacert, writeScript }:
 
 # https://github.com/docker-library/haproxy/blob/b429a6f005908205a0635e12a41d957ba87ad8fd/2.3/alpine/Dockerfile
-dockerLib.buildWithUsers {
+dockerTools.buildWithUsers {
   name = "haproxy";
 
   users = {
@@ -27,7 +27,7 @@ dockerLib.buildWithUsers {
 
   config = {
     Entrypoint = [
-      (pkgs.writeScript "haproxy-docker-entrypoint.sh" ''
+      (writeScript "haproxy-docker-entrypoint.sh" ''
         #!/bin/sh
         set -e
 
@@ -54,6 +54,7 @@ dockerLib.buildWithUsers {
 
     Env = [
       "PATH=/bin"
+      "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt"
     ];
   };
 }

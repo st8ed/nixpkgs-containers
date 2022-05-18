@@ -1,4 +1,4 @@
-{ package, lib, coreutils, gettext, stdenv, makeWrapper, gitea, fetchurl }:
+{ lib, gitea, coreutils, gettext, stdenv, makeWrapper, fetchurl }:
 
 let
   version = "1.16.5";
@@ -16,7 +16,7 @@ stdenv.mkDerivation {
   sourceRoot = "source";
 
   nativeBuildInputs = [ makeWrapper ];
-  buildInputs = [ package ];
+  runtimeInputs = [ gitea coreutils gettext ];
 
   unpackPhase = ''
     mkdir source/
@@ -29,7 +29,7 @@ stdenv.mkDerivation {
     cp -R ./docker/rootless $out
       
     mkdir -p $out/app/gitea
-    ln -sf ${package}/bin/gitea $out/app/gitea/gitea
+    ln -sf ${gitea}/bin/gitea $out/app/gitea/gitea
       
     chmod +x $out/usr/local/bin/*
       
@@ -37,6 +37,6 @@ stdenv.mkDerivation {
     wrapProgram $out/usr/local/bin/docker-setup.sh \
       --prefix PATH : "/usr/local/bin:${lib.makeBinPath [ coreutils gettext ]}"
         
-    ln -sf ${package}/bin/environment-to-ini $out/usr/local/bin/environment-to-ini
+    ln -sf ${gitea}/bin/environment-to-ini $out/usr/local/bin/environment-to-ini
   '';
 }

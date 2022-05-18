@@ -1,11 +1,7 @@
-{ nixos, mopidy, mopidy-musicbox-webclient, mopidy-mpd, dockerLib }:
+{ dockerTools, nixos, mopidy, mopidy-musicbox-webclient, mopidy-mpd }:
 let
-  mpdPort = "6600";
-  httpPort = "6680";
-
-in
-dockerLib.buildFromNixos rec {
-  name = "mopidy";
+  mpdPort = 6600;
+  httpPort = 6680;
 
   system = nixos {
     config.services.mopidy = {
@@ -21,40 +17,45 @@ dockerLib.buildFromNixos rec {
       configuration = ''
         [core]
         restore_state = true
-        
+          
         [mpd]
         enabled = true
         hostname = 0.0.0.0
-        port = ${mpdPort}
+        port = ${toString mpdPort}
         zeroconf =
- 
+  
         [audio]
         output = pulsesink 
         mixer = software
- 
+  
         [logging]
         #verbosity = 4
- 
+  
         [http]
         enabled = true
         hostname = 0.0.0.0
-        port = ${httpPort}
+        port = ${toString httpPort}
         allowed_origins =
         default_app = musicbox_webclient
         zeroconf =
- 
+  
         [file]
         enabled = true
       '';
     };
   };
 
+in
+dockerTools.buildFromNixos {
+  name = "mopidy";
+
+  inherit system;
   entryService = "mopidy";
 
   extraConfig = {
     ExposedPorts = {
-      "${mpdPort}/tcp" = { };
-      "${httpPort}/tcp" = { };
+      "${toString mpdPort}/tcp" = { };
+      "${toString httpPort}/tcp" = { };
     };
     Volumes = {
       "${system.config.services.mopidy.dataDir}" = { };

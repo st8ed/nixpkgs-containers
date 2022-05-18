@@ -1,12 +1,14 @@
 pkgs: super: {
-  dockerLib = pkgs.lib.makeScope super.newScope (self: {
-    rev = "latest";
-    enableStreaming = true;
-    includeStorePaths = true;
+  dockerTools = pkgs.lib.makeScope super.newScope (self: super.dockerTools // {
+    options = pkgs.lib.makeScope super.newScope (self: {
+      rev = "latest";
+      enableStreaming = true;
+      includeStorePaths = true;
+    });
 
-    build = { tag ? self.rev, ... } @ args: with pkgs; if self.enableStreaming
-    then dockerTools.streamLayeredImage ({ includeStorePaths = self.includeStorePaths; } // args)
-    else dockerTools.buildLayeredImage args;
+    build = { tag ? self.rev, ... } @ args: with pkgs; if self.options.enableStreaming
+    then self.streamLayeredImage ({ includeStorePaths = self.options.includeStorePaths; } // args)
+    else self.buildLayeredImage args;
 
     buildWithUsers = { users, ... } @ args: self.build ((builtins.removeAttrs args [ "users" ]) // {
       contents = (self.shadowSetup users) ++ (if args ? contents then args.contents else [ ]);
@@ -36,8 +38,8 @@ pkgs: super: {
 
         contents = with pkgs; [
           iana-etc
-          dockerTools.binSh
-          dockerTools.usrBinEnv
+          self.binSh
+          self.usrBinEnv
         ];
 
         inherit (system.config) users;

@@ -1,14 +1,6 @@
-{ pkgs, lib, gitea, dockerLib, bash, coreutils, gettext, gawk, gnugrep, findutils, cacert, iana-etc, dockerTools }:
+{ dockerTools, lib, gitea-docker-entrypoint, bash, coreutils, gettext, gawk, gnugrep, findutils, cacert, iana-etc }:
 
-let
-  rootfs = pkgs.callPackage ./contents.nix {
-    package = gitea.override {
-      pamSupport = false;
-    };
-  };
-
-in
-dockerLib.buildWithUsers {
+dockerTools.buildWithUsers {
   name = "gitea";
 
   users = {
@@ -31,7 +23,7 @@ dockerLib.buildWithUsers {
   };
 
   contents = [
-    rootfs
+    gitea-docker-entrypoint
     iana-etc
     dockerTools.binSh
     dockerTools.usrBinEnv
