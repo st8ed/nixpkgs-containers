@@ -14,9 +14,33 @@
         overlays = [ self.overlay ];
       });
 
+      overlay = pkgs: super: {
+        haproxy-ingress = pkgs.callPackage ./pkgs/haproxy-ingress.nix { };
+
+        gitea-docker-entrypoint = pkgs.callPackage ./pkgs/gitea-docker-entrypoint.nix {
+          gitea = pkgs.gitea.override {
+            pamSupport = false;
+          };
+        };
+
+        dockerImages = pkgs.lib.makeScope super.newScope (self: {
+          busybox = pkgs.callPackage ./images/busybox.nix { };
+          docker-registry = pkgs.callPackage ./images/docker-registry.nix { };
+
+          gitea = pkgs.callPackage ./images/gitea.nix { };
+
+          haproxy = pkgs.callPackage ./images/haproxy.nix { };
+          haproxy-ingress = pkgs.callPackage ./images/haproxy-ingress.nix { };
+
+          home-assistant = pkgs.callPackage ./images/home-assistant.nix { };
+          minio = pkgs.callPackage ./images/minio.nix { };
+          mopidy = pkgs.callPackage ./images/mopidy.nix { };
+        });
+      };
     in
     {
       packages = forAllSystems (system: nixpkgsFor."${system}".dockerImages);
+      ci = forAllSystems (system: (import ./ci.nix) nixpkgsFor."${system}");
 
       apps = forAllSystems (system:
         let
@@ -31,14 +55,24 @@
                   ".#$1" \
                    --no-link --json | jq -r .[0].outputs.out
               )"
-              dest="$2/library/$1:${pkgs.dockerTools.rev}"
+              dest="$2/$1:${pkgs.dockerLib.rev}"
 
               digest_file=$(mktemp imageDigest-XXXX)
-              "$src" | gzip --fast \
-                  | skopeo copy  --insecure-policy \
+
+              extension="''${src##*.}"
+
+              if [ "$extension" = "gz" ]; then
+                 skopeo copy  --insecure-policy \
                       docker-archive:/dev/stdin \
                       docker://"$dest" \
-                      --digestfile "$digest_file"
+                      --digestfile "$digest_file" <"$src"
+              else
+                "$src" | gzip --fast \
+                    | skopeo copy  --insecure-policy \
+                        docker-archive:/dev/stdin \
+                        docker://"$dest" \
+                        --digestfile "$digest_file"
+              fi
 
               echo "$dest@$(cat "$digest_file")" >> digests
               rm -f "$digest_file"
@@ -49,36 +83,15 @@
       overlay = lib.composeManyExtensions [
         (import ./lib.nix)
         (pkgs: super: {
-
-        })
-        (pkgs: super: {
           dockerTools = super.dockerTools.overrideScope' (self: super: {
-            rev = "${lib.substring 0 8 (nixpkgs.lastModifiedDate or nixpkgs.lastModified or "19700101")}.${nixpkgs.shortRev or "dirty"}";
-            enableStreaming = true; # if inputs.self ? shortRev then false else true;
-            includeStorePaths = true;
-          });
-
-          haproxy-ingress = pkgs.callPackage ./pkgs/haproxy-ingress.nix { };
-
-          gitea-docker-entrypoint = pkgs.callPackage ./pkgs/gitea-docker-entrypoint.nix {
-            gitea = pkgs.gitea.override {
-              pamSupport = false;
-            };
-          };
-
-          dockerImages = pkgs.lib.makeScope super.newScope (self: {
-            docker-registry = pkgs.callPackage ./images/docker-registry.nix { };
-
-            gitea = pkgs.callPackage ./images/gitea.nix { };
-
-            haproxy = pkgs.callPackage ./images/haproxy.nix { };
-            haproxy-ingress = pkgs.callPackage ./images/haproxy-ingress.nix { };
-
-            home-assistant = pkgs.callPackage ./images/home-assistant.nix { };
-            minio = pkgs.callPackage ./images/minio.nix { };
-            mopidy = pkgs.callPackage ./images/mopidy.nix { };
+            options = super.options.overrideScope' (_: _: {
+              rev = "${lib.substring 0 8 (nixpkgs.lastModifiedDate or nixpkgs.lastModified or "19700101")}.${nixpkgs.shortRev or "dirty"}";
+              enableStreaming = true;
+              includeStorePaths = true;
+            });
           });
         })
+        overlay
       ];
     };
 }

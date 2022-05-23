@@ -6,9 +6,22 @@ pkgs: super: {
       includeStorePaths = true;
     });
 
-    build = { tag ? self.rev, ... } @ args: with pkgs; if self.options.enableStreaming
-    then self.streamLayeredImage ({ includeStorePaths = self.options.includeStorePaths; } // args)
-    else self.buildLayeredImage args;
+    build = { tag ? self.options.rev, withNixDb ? false, ... } @ args_:
+      let
+        args = (builtins.removeAttrs args_ [ "withNixDb" ]) // {
+          inherit tag;
+        };
+      in
+      with pkgs.dockerTools;
+      if withNixDb
+      then
+        buildLayeredImageWithNixDb args
+      else
+        (
+          if self.options.enableStreaming
+          then streamLayeredImage ({ includeStorePaths = self.options.includeStorePaths; } // args)
+          else buildLayeredImage args
+        );
 
     buildWithUsers = { users, ... } @ args: self.build ((builtins.removeAttrs args [ "users" ]) // {
       contents = (self.shadowSetup users) ++ (if args ? contents then args.contents else [ ]);
@@ -29,7 +42,7 @@ pkgs: super: {
       '' + (if args ? fakeRootCommands then args.fakeRootCommands else "");
     });
 
-    buildFromNixos = { name, system, entryService, extraConfig ? { }, extraPaths ? [ ] }:
+    buildFromNixos = { name, system, entryService, extraConfig ? { }, extraPaths ? [ ], fakeRootCommands ? "" }:
       let
         service = system.config.systemd.services.${entryService};
       in
@@ -44,6 +57,8 @@ pkgs: super: {
 
         inherit (system.config) users;
 
+        inherit fakeRootCommands;
+
         config = with pkgs; lib.recursiveUpdate
           {
             Entrypoint = [
@@ -51,7 +66,7 @@ pkgs: super: {
                 #!${runtimeShell}
                 set -x
                 ${if service.serviceConfig ? ExecStartPre then lib.concatStrings service.serviceConfig.ExecStartPre else ""}
-                exec ${service.serviceConfig.ExecStart}
+                exec ${service.serviceConfig.ExecStart} "$@"
               '')
             ];
 

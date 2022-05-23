@@ -1,12 +1,21 @@
 { dockerTools
-,lib
+, lib
 , haproxy
 , haproxy-ingress
-, bash, iana-etc, coreutils, socat, openssl, lua5_3, dumb-init, cacert }:
+, bash
+, iana-etc
+, coreutils
+, socat
+, openssl
+, lua5_3
+, dumb-init
+, cacert
+}:
 
 # https://github.com/docker-library/haproxy/blob/b429a6f005908205a0635e12a41d957ba87ad8fd/2.3/alpine/Dockerfile
 dockerTools.buildWithUsers {
   name = "haproxy-ingress";
+  tag = haproxy-ingress.version;
 
   users = {
     users.haproxy = {
