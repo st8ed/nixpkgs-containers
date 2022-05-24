@@ -34,6 +34,7 @@
           haproxy-ingress = pkgs.callPackage ./images/haproxy-ingress.nix { };
 
           home-assistant = pkgs.callPackage ./images/home-assistant.nix { };
+          k8s-sidecar = pkgs.callPackage ./images/k8s-sidecar.nix { };
           minio = pkgs.callPackage ./images/minio.nix { };
           mopidy = pkgs.callPackage ./images/mopidy.nix { };
         });
