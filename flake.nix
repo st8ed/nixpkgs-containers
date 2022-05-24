@@ -25,6 +25,7 @@
 
         dockerImages = pkgs.lib.makeScope super.newScope (self: {
           busybox = pkgs.callPackage ./images/busybox.nix { };
+          code-server = pkgs.callPackage ./images/code-server.nix { };
           docker-registry = pkgs.callPackage ./images/docker-registry.nix { };
 
           gitea = pkgs.callPackage ./images/gitea.nix { };
