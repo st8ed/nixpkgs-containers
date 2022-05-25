@@ -23,6 +23,8 @@
           };
         };
 
+        kube-state-metrics = pkgs.callPackage ./pkgs/kube-state-metrics.nix { };
+
         dockerImages = pkgs.lib.makeScope super.newScope (self: {
           busybox = pkgs.callPackage ./images/busybox.nix { };
           code-server = pkgs.callPackage ./images/code-server.nix { };
@@ -36,6 +38,7 @@
 
           home-assistant = pkgs.callPackage ./images/home-assistant.nix { };
           k8s-sidecar = pkgs.callPackage ./images/k8s-sidecar.nix { };
+          kube-state-metrics = pkgs.callPackage ./images/kube-state-metrics.nix { };
           minio = pkgs.callPackage ./images/minio.nix { };
           mopidy = pkgs.callPackage ./images/mopidy.nix { };
         });
