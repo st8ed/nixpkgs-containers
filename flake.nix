@@ -29,6 +29,7 @@
           docker-registry = pkgs.callPackage ./images/docker-registry.nix { };
 
           gitea = pkgs.callPackage ./images/gitea.nix { };
+          grafana = pkgs.callPackage ./images/grafana.nix { };
 
           haproxy = pkgs.callPackage ./images/haproxy.nix { };
           haproxy-ingress = pkgs.callPackage ./images/haproxy-ingress.nix { };

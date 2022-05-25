@@ -70,12 +70,12 @@ dockerTools.buildWithUsers rec {
     WorkingDir = workDir;
     Env = [
       "PATH=/usr/local/bin:${workDir}/.nix-profile/bin:/run/system/bin:/bin"
-      "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt"
+      "SSL_CERT_FILE=/run/system/etc/ssl/certs/ca-bundle.crt"
 
-      "SHELL=${bashInteractive}/bin/bash"
+      "SHELL=/run/system/bin/bash"
 
       # Required by nix
-      "NIX_PAGER=${coreutils}/bin/cat"
+      "NIX_PAGER=/run/system/bin/cat"
       "USER=developer"
     ];
     ExposedPorts = {
