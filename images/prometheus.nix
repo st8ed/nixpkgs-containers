@@ -4,7 +4,7 @@ dockerTools.buildWithUsers rec {
   name = "prometheus";
   tag = prometheus.version;
 
-  contents = [ prometheus ]; 
+  contents = [ prometheus ];
 
   users = {
     users.prometheus = {

@@ -24,6 +24,7 @@
         };
 
         kube-state-metrics = pkgs.callPackage ./pkgs/kube-state-metrics.nix { };
+        prometheus-operator = pkgs.callPackage ./pkgs/prometheus-operator.nix { };
 
         dockerImages = pkgs.lib.makeScope super.newScope (self: {
           busybox = pkgs.callPackage ./images/busybox.nix { };
@@ -31,6 +32,9 @@
           docker-registry = pkgs.callPackage ./images/docker-registry.nix { };
           gitea = pkgs.callPackage ./images/gitea.nix { };
           prometheus = pkgs.callPackage ./images/prometheus.nix { };
+          prometheus-operator = pkgs.callPackage ./images/prometheus-operator.nix { };
+          prometheus-config-reloader = pkgs.callPackage ./images/prometheus-config-reloader.nix { };
+          prometheus-admission-webhook = pkgs.callPackage ./images/prometheus-admission-webhook.nix { };
           grafana = pkgs.callPackage ./images/grafana.nix { };
           haproxy-ingress = pkgs.callPackage ./images/haproxy-ingress.nix { };
           haproxy = pkgs.callPackage ./images/haproxy.nix { };
