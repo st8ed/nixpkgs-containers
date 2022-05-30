@@ -33,6 +33,7 @@
           gitea = pkgs.callPackage ./images/gitea.nix { };
           prometheus = pkgs.callPackage ./images/prometheus.nix { };
           prometheus-operator = pkgs.callPackage ./images/prometheus-operator.nix { };
+          prometheus-alertmanager = pkgs.callPackage ./images/prometheus-alertmanager.nix { };
           prometheus-config-reloader = pkgs.callPackage ./images/prometheus-config-reloader.nix { };
           prometheus-admission-webhook = pkgs.callPackage ./images/prometheus-admission-webhook.nix { };
           grafana = pkgs.callPackage ./images/grafana.nix { };
