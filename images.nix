@@ -28,5 +28,6 @@ pkgs: super: {
     prometheus-config-reloader = pkgs.callPackage ./images/prometheus-config-reloader.nix { };
     prometheus-operator = pkgs.callPackage ./images/prometheus-operator.nix { };
     prometheus = pkgs.callPackage ./images/prometheus.nix { };
+    transmission = pkgs.callPackage ./images/transmission.nix { };
   });
 }
