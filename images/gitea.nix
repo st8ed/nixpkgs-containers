@@ -1,4 +1,4 @@
-{ dockerTools, lib, gitea-docker-entrypoint, bash, coreutils, gettext, gawk, gnugrep, findutils, cacert, iana-etc }:
+{ lib, dockerTools, gitea-docker-entrypoint, bash, coreutils, gettext, gawk, gnugrep, findutils, cacert, iana-etc }:
 
 dockerTools.buildWithUsers {
   name = "gitea";
@@ -23,10 +23,11 @@ dockerTools.buildWithUsers {
   };
 
   contents = [
-    gitea-docker-entrypoint
     iana-etc
     dockerTools.binSh
     dockerTools.usrBinEnv
+
+    gitea-docker-entrypoint
   ];
 
   fakeRootCommands = ''
@@ -61,6 +62,18 @@ dockerTools.buildWithUsers {
       "3000/tcp" = { };
     };
 
-    Volumes = { "/var/lib/gitea" = { }; "/etc/gitea" = { }; };
+    Volumes = {
+      "/var/lib/gitea" = { };
+      "/etc/gitea" = { };
+    };
+  };
+
+  meta = with lib; {
+    description = "A self-hosted Git service";
+    replacementImage = "gitea/gitea:latest-rootless";
+    replacementImageUrl = "https://github.com/go-gitea/gitea/blob/main/Dockerfile.rootless";
+
+    license = licenses.mit;
+    platform = platforms.x86_64;
   };
 }

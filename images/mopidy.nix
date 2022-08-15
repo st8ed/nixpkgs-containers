@@ -1,4 +1,4 @@
-{ dockerTools, nixos, mopidy, mopidy-musicbox-webclient, mopidy-mpd }:
+{ lib, dockerTools, nixos, mopidy, mopidy-musicbox-webclient, mopidy-mpd }:
 let
   mpdPort = 6600;
   httpPort = 6680;
@@ -60,5 +60,12 @@ dockerTools.buildFromNixos {
     Volumes = {
       "${system.config.services.mopidy.dataDir}" = { };
     };
+  };
+
+  meta = with lib; {
+    description = "Mopidy media server";
+
+    license = licenses.asl2;
+    platform = platforms.linux;
   };
 }

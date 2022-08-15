@@ -1,4 +1,4 @@
-{ dockerTools, nixos }:
+{ lib, dockerTools, nixos }:
 
 let
   listenPort = 9000;
@@ -33,5 +33,12 @@ dockerTools.buildFromNixos rec {
     Volumes = {
       "${system.config.users.users.minio.home}" = { };
     };
+  };
+
+  meta = with lib; {
+    description = "MinIO server";
+
+    license = licenses.agpl3;
+    platform = platforms.x86_64;
   };
 }

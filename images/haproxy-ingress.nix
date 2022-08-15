@@ -12,7 +12,6 @@
 , cacert
 }:
 
-# https://github.com/docker-library/haproxy/blob/b429a6f005908205a0635e12a41d957ba87ad8fd/2.3/alpine/Dockerfile
 dockerTools.buildWithUsers {
   name = "haproxy-ingress";
   tag = haproxy-ingress.version;
@@ -61,5 +60,14 @@ dockerTools.buildWithUsers {
       "PATH=${lib.makeBinPath [ bash coreutils socat openssl lua5_3 dumb-init ]}:/bin"
       "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt"
     ];
+  };
+
+  meta = with lib; {
+    description = "HAProxy ingress controller";
+    replacementImage = "quay.io/jcmoraisjr/haproxy-ingress";
+    replacementImageUrl = "https://github.com/jcmoraisjr/haproxy-ingress/blob/master/rootfs/Dockerfile";
+
+    license = licenses.asl20;
+    platform = platforms.linux;
   };
 }

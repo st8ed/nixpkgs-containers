@@ -1,4 +1,4 @@
-{ pkgs, python3, fetchFromGitHub, dockerTools, cacert }:
+{ pkgs, lib, python3, fetchFromGitHub, dockerTools, cacert }:
 
 let
   src = fetchFromGitHub {
@@ -21,15 +21,12 @@ dockerTools.build {
   contents = [
     rootfs
 
-    # iana-etc
-    # dockerTools.binSh
-    # dockerTools.usrBinEnv
-
     (pkgs.buildEnv {
       name = "k8s-sidecar-env";
       extraPrefix = "/run/system";
       paths = [
-        # bash coreutils
+        cacert
+
         (python3.withPackages (p: with p; [ kubernetes requests ]))
       ];
     })
@@ -43,7 +40,16 @@ dockerTools.build {
 
     Env = [
       "PATH=/usr/local/bin:/run/system/bin:/bin"
-      "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt"
+      "SSL_CERT_FILE=/run/system/etc/ssl/certs/ca-bundle.crt"
     ];
+  };
+
+  meta = with lib; {
+    description = "Collect configmaps and store them in a path";
+    replacementImage = "kiwigrid/k8s-sidecar";
+    replacementImageUrl = "https://github.com/kiwigrid/k8s-sidecar/blob/master/Dockerfile";
+
+    license = licenses.mit;
+    platform = platforms.linux;
   };
 }

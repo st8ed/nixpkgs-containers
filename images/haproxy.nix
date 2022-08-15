@@ -1,6 +1,5 @@
-{ dockerTools, haproxy, iana-etc, cacert, writeScript }:
+{ pkgs, lib, dockerTools, haproxy, iana-etc, cacert }:
 
-# https://github.com/docker-library/haproxy/blob/b429a6f005908205a0635e12a41d957ba87ad8fd/2.3/alpine/Dockerfile
 dockerTools.buildWithUsers {
   name = "haproxy";
 
@@ -27,7 +26,7 @@ dockerTools.buildWithUsers {
 
   config = {
     Entrypoint = [
-      (writeScript "haproxy-docker-entrypoint.sh" ''
+      (pkgs.writeScript "haproxy-docker-entrypoint.sh" ''
         #!/bin/sh
         set -e
 
@@ -56,5 +55,14 @@ dockerTools.buildWithUsers {
       "PATH=/bin"
       "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt"
     ];
+  };
+
+  meta = with lib; {
+    description = "HAProxy TCP/HTTP Load Balancer";
+    replacementImage = "library/haproxy";
+    replacementImageUrl = "https://github.com/docker-library/haproxy/blob/master/2.7/Dockerfile";
+
+    license = licenses.gpl2;
+    platform = platforms.x86_64;
   };
 }

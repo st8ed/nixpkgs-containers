@@ -1,4 +1,5 @@
-{ dockerTools
+{ lib
+, dockerTools
 , nixos
 , home-assistant
 , extraComponents ? [
@@ -100,5 +101,12 @@ dockerTools.buildFromNixos rec {
     Volumes = {
       "${system.config.users.users.hass.home}" = { };
     };
+  };
+
+  meta = with lib; {
+    description = "Home Assistant distribution";
+
+    license = licenses.asl20;
+    platform = platforms.linux;
   };
 }

@@ -1,6 +1,6 @@
-{ pkgs, lib, nixos, code-server, bashInteractive, coreutils, dockerTools, enableProxy ? false, iana-etc, nixUnstable, cacert }:
+{ pkgs, lib, dockerTools, code-server, nixUnstable, bashInteractive, coreutils, gitMinimal, procps, openssh, iana-etc, cacert }:
 
-# TODO: Add OpenSSH support?
+# TODO: Run OpenSSH server in background
 
 let
   workDir = "/home/coder";
@@ -26,6 +26,9 @@ dockerTools.buildWithUsers rec {
 
         bashInteractive
         coreutils
+        gitMinimal
+        procps
+        openssh
 
         cacert
       ];
@@ -81,5 +84,14 @@ dockerTools.buildWithUsers rec {
     ExposedPorts = {
       "8080/tcp" = { };
     };
+  };
+
+  meta = with lib; {
+    description = "VS Code in the browser with Nix";
+    replacementImage = "codercom/code-server";
+    replacementImageUrl = "https://github.com/coder/code-server/blob/main/ci/release-image/Dockerfile";
+
+    license = licenses.mit;
+    platforms = platforms.x86_64;
   };
 }

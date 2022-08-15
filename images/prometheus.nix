@@ -1,4 +1,4 @@
-{ dockerTools, prometheus }:
+{ lib, dockerTools, prometheus }:
 
 dockerTools.buildWithUsers rec {
   name = "prometheus";
@@ -35,5 +35,14 @@ dockerTools.buildWithUsers rec {
     Volumes = {
       "/var/lib/prometheus2" = { };
     };
+  };
+
+  meta = with lib; {
+    description = "Prometheus";
+    replacementImage = "prom/prometheus";
+    replacementImageUrl = "https://github.com/prometheus/prometheus/blob/main/Dockerfile";
+
+    license = licenses.asl20;
+    platform = platforms.linux;
   };
 }

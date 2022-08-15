@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos, bash, coreutils, dockerTools, grafana, makeWrapper, gnugrep, gnused, cacert, iana-etc }:
+{ pkgs, lib, bash, coreutils, dockerTools, grafana, makeWrapper, gnugrep, gnused, cacert, iana-etc }:
 
 let
   entrypoint = pkgs.writeScriptBin "grafana-entrypoint.sh" ''
@@ -161,6 +161,15 @@ dockerTools.buildWithUsers rec {
     ExposedPorts = {
       "8080/tcp" = { };
     };
+  };
+
+  meta = with lib; {
+    description = "Grafana docker image";
+    replacementImage = "grafana/grafana";
+    replacementImageUrl = "https://github.com/grafana/grafana/blob/main/packaging/docker/ubuntu.Dockerfile";
+
+    license = licenses.agpl3;
+    platform = platforms.x86_64;
   };
 }
 

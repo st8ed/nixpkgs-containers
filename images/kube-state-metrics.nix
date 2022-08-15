@@ -1,4 +1,4 @@
-{ kube-state-metrics, dockerTools, pkgs, lib }:
+{ pkgs, lib, kube-state-metrics, dockerTools }:
 
 let
   package = kube-state-metrics;
@@ -23,5 +23,14 @@ dockerTools.build rec {
       "8080/tcp" = { };
       "8081/tcp" = { };
     };
+  };
+
+  meta = with lib; {
+    description = "Generate metrics about Kubernetes objects";
+    replacementImage = "registry.k8s.io/kube-state-metrics/kube-state-metrics";
+    replacementImageUrl = "https://github.com/kubernetes/kube-state-metrics/blob/master/Dockerfile";
+
+    license = licenses.asl20;
+    platform = platforms.linux;
   };
 }

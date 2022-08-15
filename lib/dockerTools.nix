@@ -6,22 +6,26 @@ pkgs: super: {
       includeStorePaths = true;
     });
 
-    build = { tag ? self.options.rev, withNixDb ? false, ... } @ args_:
+    build = { tag ? self.options.rev, withNixDb ? false, meta ? { }, ... } @ args_:
       let
-        args = (builtins.removeAttrs args_ [ "withNixDb" ]) // {
+        args = (builtins.removeAttrs args_ [ "withNixDb" "meta" ]) // {
           inherit tag;
         };
+
+        pkg = with pkgs.dockerTools;
+          if withNixDb
+          then
+            buildLayeredImageWithNixDb args
+          else
+            (
+              if self.options.enableStreaming
+              then streamLayeredImage ({ includeStorePaths = self.options.includeStorePaths; } // args)
+              else buildLayeredImage args
+            );
       in
-      with pkgs.dockerTools;
-      if withNixDb
-      then
-        buildLayeredImageWithNixDb args
-      else
-        (
-          if self.options.enableStreaming
-          then streamLayeredImage ({ includeStorePaths = self.options.includeStorePaths; } // args)
-          else buildLayeredImage args
-        );
+      pkg.overrideAttrs (oldAttrs: {
+        inherit meta;
+      });
 
     buildWithUsers = { users, ... } @ args: self.build ((builtins.removeAttrs args [ "users" ]) // {
       contents = (self.shadowSetup users) ++ (if args ? contents then args.contents else [ ]);
@@ -42,7 +46,7 @@ pkgs: super: {
       '' + (if args ? fakeRootCommands then args.fakeRootCommands else "");
     });
 
-    buildFromNixos = { name, system, entryService, extraConfig ? { }, extraPaths ? [ ], fakeRootCommands ? "" }:
+    buildFromNixos = { name, system, entryService, extraConfig ? { }, extraPaths ? [ ], fakeRootCommands ? "", meta ? { } }:
       let
         service = system.config.systemd.services.${entryService};
       in
@@ -57,7 +61,7 @@ pkgs: super: {
 
         inherit (system.config) users;
 
-        inherit fakeRootCommands;
+        inherit fakeRootCommands meta;
 
         config = with pkgs; lib.recursiveUpdate
           {

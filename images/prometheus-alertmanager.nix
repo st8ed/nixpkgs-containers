@@ -1,4 +1,4 @@
-{ dockerTools, prometheus-alertmanager }:
+{ lib, dockerTools, prometheus-alertmanager }:
 
 dockerTools.build rec {
   name = "prometheus-alertmanager";
@@ -28,5 +28,14 @@ dockerTools.build rec {
     ExposedPorts = {
       "9093/tcp" = { };
     };
+  };
+
+  meta = with lib; {
+    description = "Prometheus Alert Manager";
+    replacementImage = "prom/alertmanager";
+    replacementImageUrl = "https://github.com/prometheus/alertmanager/blob/main/Dockerfile";
+
+    license = licenses.asl20;
+    platform = platforms.linux;
   };
 }

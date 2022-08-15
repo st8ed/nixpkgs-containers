@@ -32,4 +32,13 @@ dockerTools.buildFromNixos rec {
       "${system.config.services.dockerRegistry.storagePath}" = { };
     };
   };
+
+  meta = with lib; {
+    description = "Registry implementation for storing and distributing Docker images";
+    replacementImage = "library/registry";
+    replacementImageUrl = "https://hub.docker.com/_/registry";
+
+    license = licenses.asl20;
+    platforms = platforms.x86_64;
+  };
 }

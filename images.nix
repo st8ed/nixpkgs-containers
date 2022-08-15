@@ -11,6 +11,7 @@ pkgs: super: {
   prometheus-operator = pkgs.callPackage ./pkgs/prometheus-operator.nix { };
 
   dockerImages = pkgs.lib.makeScope super.newScope (self: {
+    bind = pkgs.callPackage ./images/bind.nix { };
     busybox = pkgs.callPackage ./images/busybox.nix { };
     code-server = pkgs.callPackage ./images/code-server.nix { };
     docker-registry = pkgs.callPackage ./images/docker-registry.nix { };
@@ -23,11 +24,26 @@ pkgs: super: {
     kube-state-metrics = pkgs.callPackage ./images/kube-state-metrics.nix { };
     minio = pkgs.callPackage ./images/minio.nix { };
     mopidy = pkgs.callPackage ./images/mopidy.nix { };
+    nfs-ganesha = pkgs.callPackage ./images/nfs-ganesha.nix { };
     prometheus-admission-webhook = pkgs.callPackage ./images/prometheus-admission-webhook.nix { };
     prometheus-alertmanager = pkgs.callPackage ./images/prometheus-alertmanager.nix { };
     prometheus-config-reloader = pkgs.callPackage ./images/prometheus-config-reloader.nix { };
     prometheus-operator = pkgs.callPackage ./images/prometheus-operator.nix { };
     prometheus = pkgs.callPackage ./images/prometheus.nix { };
+    socat = pkgs.callPackage ./images/socat.nix { };
     transmission = pkgs.callPackage ./images/transmission.nix { };
+
+    README = with pkgs.lib; pkgs.writeText "README.md" ''
+      | Image  | Replacement image | Description |
+      |---|---|---|
+      ${concatMapStringsSep "\n" (v:
+      "| ${v.imageName}:${v.imageTag} " +
+      "| ${optionalString (v.meta ? replacementImage)
+        "[${v.meta.replacementImage}](${v.meta.replacementImageUrl})"
+      } " +
+      "| ${optionalString (v.meta ? description) v.meta.description} " +
+      "|"
+      ) ((filter (x: x ? "imageName") (builtins.attrValues self)))}
+    '';
   });
 }
