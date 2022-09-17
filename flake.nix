@@ -15,49 +15,12 @@
       });
     in
     {
-      packages = forAllSystems (system: nixpkgsFor."${system}".dockerImages);
-      ci = forAllSystems (system: (import ./ci.nix) nixpkgsFor."${system}");
-
-      apps = forAllSystems (system:
-        let
-          pkgs = nixpkgsFor."${system}";
-        in
-        rec {
-          push = pkgs.writeShellApplication {
-            name = "nixpkgs-containers-push";
-            runtimeInputs = with pkgs; [ skopeo gzip jq ];
-            text = ''
-              src="$(nix build \
-                  ".#$1" \
-                   --no-link --json | jq -r .[0].outputs.out
-              )"
-              dest="$2/$1:${pkgs.dockerLib.rev}"
-
-              digest_file=$(mktemp imageDigest-XXXX)
-
-              extension="''${src##*.}"
-
-              if [ "$extension" = "gz" ]; then
-                 skopeo copy  --insecure-policy \
-                      docker-archive:/dev/stdin \
-                      docker://"$dest" \
-                      --digestfile "$digest_file" <"$src"
-              else
-                "$src" | gzip --fast \
-                    | skopeo copy  --insecure-policy \
-                        docker-archive:/dev/stdin \
-                        docker://"$dest" \
-                        --digestfile "$digest_file"
-              fi
-
-              echo "$dest@$(cat "$digest_file")" >> digests
-              rm -f "$digest_file"
-            '';
-          };
-        });
+      packages = forAllSystems (system: with nixpkgsFor."${system}"; dockerImages // { inherit helmCharts; });
+      apps = forAllSystems (system: nixpkgsFor."${system}".callPackage ./ci.nix { });
 
       overlay = lib.composeManyExtensions [
-        (import ./lib.nix)
+        (import ./lib/dockerTools.nix)
+        (import ./lib/chartTools.nix)
         (pkgs: super: {
           dockerTools = super.dockerTools.overrideScope' (self: super: {
             options = super.options.overrideScope' (_: _: {
@@ -68,6 +31,7 @@
           });
         })
         (import ./images.nix)
+        (import ./charts.nix)
       ];
     };
 }

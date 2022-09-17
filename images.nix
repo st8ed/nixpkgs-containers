@@ -32,18 +32,18 @@ pkgs: super: {
     prometheus = pkgs.callPackage ./images/prometheus.nix { };
     socat = pkgs.callPackage ./images/socat.nix { };
     transmission = pkgs.callPackage ./images/transmission.nix { };
-
-    README = with pkgs.lib; pkgs.writeText "README.md" ''
-      | Image  | Replacement image | Description |
-      |---|---|---|
-      ${concatMapStringsSep "\n" (v:
-      "| ${v.imageName}:${v.imageTag} " +
-      "| ${optionalString (v.meta ? replacementImage)
-        "[${v.meta.replacementImage}](${v.meta.replacementImageUrl})"
-      } " +
-      "| ${optionalString (v.meta ? description) v.meta.description} " +
-      "|"
-      ) ((filter (x: x ? "imageName") (builtins.attrValues self)))}
-    '';
   });
+
+  README = with pkgs.lib; pkgs.writeText "README.md" ''
+    | Image  | Replacement image | Description |
+    |---|---|---|
+    ${concatMapStringsSep "\n" (v:
+    "| ${v.imageName}:${v.imageTag} " +
+    "| ${optionalString (v.meta ? replacementImage)
+      "[${v.meta.replacementImage}](${v.meta.replacementImageUrl})"
+    } " +
+    "| ${optionalString (v.meta ? description) v.meta.description} " +
+    "|"
+    ) ((filter (x: x ? "imageName") (builtins.attrValues pkgs.dockerImages)))}
+  '';
 }
