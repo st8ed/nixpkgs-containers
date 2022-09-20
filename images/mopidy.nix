@@ -65,7 +65,7 @@ dockerTools.buildFromNixos {
   meta = with lib; {
     description = "Mopidy media server";
 
-    license = licenses.asl2;
+    license = licenses.asl20;
     platform = platforms.linux;
   };
 }

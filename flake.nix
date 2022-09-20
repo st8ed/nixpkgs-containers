@@ -33,5 +33,33 @@
         (import ./images.nix)
         (import ./charts.nix)
       ];
+
+      all = with self.packages.x86_64-linux; nixpkgsFor.x86_64-linux.linkFarmFromDrvs "nixpkgs-containers-all" [
+        bind
+        busybox
+        code-server
+        docker-registry
+        gitea
+        grafana
+        haproxy-ingress
+        haproxy
+        # home-assistant
+        kube-state-metrics
+        minio
+        # mopidy
+        nfs-ganesha
+        prometheus-admission-webhook
+        prometheus-alertmanager
+        prometheus-config-reloader
+        # prometheus-operator
+        # prometheus
+        socat
+        transmission
+
+        helmCharts.bind
+        helmCharts.gitea
+        helmCharts.nfs-ganesha
+        helmCharts.transmission
+      ];
     };
 }

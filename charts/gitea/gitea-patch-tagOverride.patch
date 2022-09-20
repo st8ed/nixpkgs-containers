@@ -1,0 +1,32 @@
+diff --git a/gitea/templates/_helpers.tpl b/gitea/templates/_helpers.tpl
+index 2d12b81..ec3849e 100644
+--- a/gitea/templates/_helpers.tpl
++++ b/gitea/templates/_helpers.tpl
+@@ -36,10 +36,15 @@ Create image name and tag used by the deployment.
+ */}}
+ {{- define "gitea.image" -}}
+ {{- $name := .Values.image.repository -}}
++{{- if .Values.image.tagOverride -}}
++{{- $tagOverride := .Values.image.tagOverride -}}
++{{- printf "%s:%s" $name $tagOverride -}}
++{{- else -}}
+ {{- $tag := .Values.image.tag | default .Chart.AppVersion -}}
+ {{- $rootless := ternary "-rootless" "" (.Values.image.rootless) -}}
+ {{- printf "%s:%s%s" $name $tag $rootless -}}
+ {{- end -}}
++{{- end -}}
+ 
+ {{/*
+ Common labels
+diff --git a/gitea/values.yaml b/gitea/values.yaml
+index 8bf8799..5cbf651 100644
+--- a/gitea/values.yaml
++++ b/gitea/values.yaml
+@@ -10,6 +10,7 @@ image:
+   repository: gitea/gitea
+   # Overrides the image tag whose default is the chart appVersion.
+   tag: ""
++  tagOverride: ""
+   pullPolicy: Always
+   rootless: false # only possible when running 1.14 or later
+ 

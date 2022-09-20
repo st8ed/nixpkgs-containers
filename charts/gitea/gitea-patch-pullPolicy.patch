@@ -1,0 +1,28 @@
+diff --git a/gitea/templates/gitea/statefulset.yaml b/gitea/templates/gitea/statefulset.yaml
+index ff6c9e1..8662ca1 100644
+--- a/gitea/templates/gitea/statefulset.yaml
++++ b/gitea/templates/gitea/statefulset.yaml
+@@ -44,6 +44,7 @@ spec:
+       initContainers:
+         - name: init-directories
+           image: "{{ include "gitea.image" . }}"
++          imagePullPolicy: {{ .Values.image.pullPolicy }}
+           command: ["/usr/sbin/init_directory_structure.sh"]
+           env:
+             - name: GITEA_APP_INI
+@@ -74,6 +75,7 @@ spec:
+             {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+         - name: init-app-ini
+           image: "{{ include "gitea.image" . }}"
++          imagePullPolicy: {{ .Values.image.pullPolicy }}
+           command: ["/usr/sbin/config_environment.sh"]
+           env:
+             - name: GITEA_APP_INI
+@@ -113,6 +115,7 @@ spec:
+             {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+         - name: configure-gitea
+           image: "{{ include "gitea.image" . }}"
++          imagePullPolicy: {{ .Values.image.pullPolicy }}
+           command: ["/usr/sbin/configure_gitea.sh"]
+           securityContext:
+             {{- /* By default this container runs as user 1000 unless otherwise stated */ -}}

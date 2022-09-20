@@ -2,6 +2,7 @@
 
 dockerTools.buildWithUsers {
   name = "gitea";
+  tag = gitea-docker-entrypoint.version;
 
   users = {
     users.git = {
