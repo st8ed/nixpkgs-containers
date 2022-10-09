@@ -46,12 +46,12 @@ pkgs: super: {
       '' + (if args ? fakeRootCommands then args.fakeRootCommands else "");
     });
 
-    buildFromNixos = { name, system, entryService, extraConfig ? { }, extraPaths ? [ ], fakeRootCommands ? "", meta ? { } }:
+    buildFromNixos = { name, tag ? self.options.rev, system, entryService, extraConfig ? { }, extraPaths ? [ ], fakeRootCommands ? "", meta ? { } }:
       let
         service = system.config.systemd.services.${entryService};
       in
       self.buildWithUsers {
-        inherit name;
+        inherit name tag;
 
         contents = with pkgs; [
           iana-etc

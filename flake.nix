@@ -15,7 +15,7 @@
       });
     in
     {
-      packages = forAllSystems (system: with nixpkgsFor."${system}"; dockerImages // { inherit helmCharts; });
+      packages = forAllSystems (system: with nixpkgsFor."${system}"; dockerImages // { inherit helmCharts README; });
       apps = forAllSystems (system: nixpkgsFor."${system}".callPackage ./ci.nix { });
 
       overlay = lib.composeManyExtensions [

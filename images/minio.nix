@@ -1,4 +1,4 @@
-{ lib, dockerTools, nixos }:
+{ lib, dockerTools, nixos, minio }:
 
 let
   listenPort = 9000;
@@ -21,6 +21,7 @@ let
 in
 dockerTools.buildFromNixos rec {
   name = "minio";
+  tag = minio.version;
 
   inherit system;
   entryService = "minio";

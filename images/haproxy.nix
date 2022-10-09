@@ -2,6 +2,7 @@
 
 dockerTools.buildWithUsers {
   name = "haproxy";
+  tag = haproxy.version;
 
   users = {
     users.haproxy = {

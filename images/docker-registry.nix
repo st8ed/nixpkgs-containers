@@ -1,4 +1,4 @@
-{ dockerTools, nixos, lib, enableProxy ? false }:
+{ dockerTools, nixos, lib, docker-distribution, enableProxy ? false }:
 
 let
   system = nixos {
@@ -20,6 +20,7 @@ let
 in
 dockerTools.buildFromNixos rec {
   name = "docker-registry";
+  tag = docker-distribution.version;
 
   inherit system;
   entryService = "docker-registry";

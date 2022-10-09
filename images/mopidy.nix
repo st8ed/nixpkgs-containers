@@ -48,6 +48,7 @@ let
 in
 dockerTools.buildFromNixos {
   name = "mopidy";
+  tag = mopidy.version;
 
   inherit system;
   entryService = "mopidy";

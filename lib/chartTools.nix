@@ -115,20 +115,20 @@ let
                 let
                   ports =
                     if ((builtins.attrNames config.ports) != [ ]) then ''
-                ports:
-                ${lib.concatMapStringsSep "\n" (p:
-                "  - name: ${p.name}\n" +
-                "    containerPort: ${toString p.value.port}\n" +
-                "    protocol: ${p.value.protocol}\n"
-                ) (mapAttrsToList lib.nameValuePair config.ports)}'' else "";
+                      ports:
+                      ${lib.concatMapStringsSep "\n" (p:
+                      "  - name: ${p.name}\n" +
+                      "    containerPort: ${toString p.value.port}\n" +
+                      "    protocol: ${p.value.protocol}\n"
+                      ) (mapAttrsToList lib.nameValuePair config.ports)}'' else "";
 
                   volumeMounts =
                     if ((builtins.attrNames config.volumeMounts) != [ ]) then ''
-                volumeMounts:
-                ${lib.concatMapStringsSep "\n" (p:
-                "  - name: ${p.name}\n" +
-                "    mountPath: ${toString p.value}\n"
-                ) (mapAttrsToList lib.nameValuePair config.volumeMounts)}'' else "";
+                      volumeMounts:
+                      ${lib.concatMapStringsSep "\n" (p:
+                      "  - name: ${p.name}\n" +
+                      "    mountPath: ${toString p.value}\n"
+                      ) (mapAttrsToList lib.nameValuePair config.volumeMounts)}'' else "";
                 in
                 ''
                   {{- define "@CHART_NAME@.container-${name}" -}}

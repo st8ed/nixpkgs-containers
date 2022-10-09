@@ -90,6 +90,7 @@ let
 in
 dockerTools.buildFromNixos rec {
   name = "home-assistant";
+  tag = home-assistant.version;
 
   inherit system;
   entryService = "home-assistant";
