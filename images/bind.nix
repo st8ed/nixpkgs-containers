@@ -4,6 +4,7 @@ let
   package = bind.override {
     enableGSSAPI = false;
   };
+
   configFile = pkgs.writeText "named.conf" ''
     include "/etc/bind/named.conf.d/*.key";
     include "/etc/bind/named.conf.d/*.conf";
@@ -64,5 +65,10 @@ dockerTools.buildWithUsers {
     ];
   };
 
-  #  inherit (package) meta;
+  meta = with lib; {
+    description = "Domain name server";
+
+    license = licenses.mpl20;
+    platforms = platforms.linux;
+  };
 }

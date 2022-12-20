@@ -1,19 +1,40 @@
 { chartTools, dockerImages }:
 
 let
-  image = dockerImages.nfs-ganesha;
+  inherit (dockerImages) nfs-ganesha socat;
+
+  # Commands to generate self-signed TLS and import it to Kubernetes:
+  #
+  # openssl req -x509 \
+  #    -newkey rsa:4096 -nodes \
+  #    -keyout server.private.pem -out server.public.pem \
+  #    -sha256 -days 365 \
+  #    -subj '/CN=localhost'
+  #
+  # openssl req -x509 \
+  #    -newkey rsa:4096 -nodes \
+  #    -keyout client.private.pem -out client.public.pem \
+  #    -sha256 -days 365 \
+  #    -subj '/CN=localhost'
+  #
+  # cat server.private.pem server.public.pem > server.pem
+  # cat client.private.pem client.public.pem > client.pem
+  # cat client.public.pem > ca.pem
+  #
+  # kubectl create secret generic \
+  #    -n gateway nfs-tls \
+  #    --from-file=server.pem \
+  #    --from-file=ca.pem
 
 in
-chartTools.buildChart rec {
+chartTools.buildSimpleChart rec {
   name = "nfs-ganesha";
   version = "0.1.0";
-  appVersion = "4.0";
+  appVersion = nfs-ganesha.imageTag;
 
   kind = "StatefulSet";
-  values.image = {
-    repository = "registry.st8ed.com/nfs-ganesha";
-    tag = "${appVersion}@sha256:2c7c8a8b92c2f33600d0d25bcb57bad3d94e6cb45760e3d061a3597edce6e74e";
-  };
+  image.package = nfs-ganesha;
+  images.socat.package = socat;
 
   extraValues = ''
     service:
@@ -32,17 +53,21 @@ chartTools.buildChart rec {
 
     extraConfig = ''
       securityContext:
-        #privileged: true
+        # Running privileged is not required
+        # privileged: true
         capabilities:
-             #drop:
-             #  - ALL
-             add:
-               - DAC_READ_SEARCH
+          # TODO: Uncommenting breaks things
+          #drop:
+          #  - ALL
+
+          # This is required
+          add:
+            - DAC_READ_SEARCH
     '';
   };
 
   containers."socat" = {
-    image = "registry.st8ed.com/socat:1.7.4.3@sha256:767706cb606bb9346cb337c9705db8a9ed1f12aec202188157cb83188323b56e";
+    image = "socat";
 
     ports = {
       "nfs-tls" = {
@@ -67,26 +92,6 @@ chartTools.buildChart rec {
     '';
   };
 
-  # openssl req -x509 \
-  #    -newkey rsa:4096 -nodes \
-  #    -keyout server.private.pem -out server.public.pem \
-  #    -sha256 -days 365 \
-  #    -subj '/CN=localhost'
-
-  #openssl req -x509 \
-  #    -newkey rsa:4096 -nodes \
-  #    -keyout client.private.pem -out client.public.pem \
-  #    -sha256 -days 365 \
-  #    -subj '/CN=localhost'
-
-  #cat server.private.pem server.public.pem > server.pem
-  #cat client.private.pem client.public.pem > client.pem
-  #cat client.public.pem > ca.pem
-
-  #kubectl create secret generic \
-  #    -n gateway nfs-tls \
-  #    --from-file=server.pem \
-  #    --from-file=ca.pem
 
   servicePorts = {
     "nfs" = {

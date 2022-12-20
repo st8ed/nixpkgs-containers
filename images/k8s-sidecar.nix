@@ -1,11 +1,11 @@
-{ pkgs, lib, python3, fetchFromGitHub, dockerTools, cacert }:
+{ pkgs, lib, dockerTools, python3, cacert }:
 
 let
-  src = fetchFromGitHub {
+  src = pkgs.fetchFromGitHub {
     owner = "kiwigrid";
     repo = "k8s-sidecar";
-    rev = "1.18.0";
-    sha256 = "sha256-4oE63j0M5V2AcGC/JsT2auxD6Y0zVFQ2iFuE+F4P9jA=";
+    rev = "1.18.1";
+    sha256 = "sha256-CowI9G1fmvgKrhRHF8V0Fq/PyNksj67EtAPdjQkUhRE=";
   };
 
   rootfs = pkgs.runCommandNoCC "k8s-sidecar" { inherit src; } ''
@@ -16,7 +16,7 @@ let
 in
 dockerTools.build {
   name = "k8s-sidecar";
-  tag = src.rev;
+  tag = "v${src.rev}";
 
   contents = [
     rootfs

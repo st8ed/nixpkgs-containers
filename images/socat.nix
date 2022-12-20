@@ -1,15 +1,11 @@
-{ lib, dockerTools, pkgsStatic }:
+{ pkgsStatic, lib, dockerTools }:
 
-let
-  socat = pkgsStatic.socat;
-
-in
 dockerTools.build {
   name = "socat";
-  tag = socat.version;
+  tag = pkgsStatic.socat.version;
 
   extraCommands = ''
-    cp -r ${socat}/* .
+    cp -r ${pkgsStatic.socat}/* .
   '';
 
   config = {

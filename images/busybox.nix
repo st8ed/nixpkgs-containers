@@ -1,15 +1,11 @@
-{ lib, dockerTools, pkgsStatic }:
+{ pkgsStatic, lib, dockerTools }:
 
-let
-  busybox = pkgsStatic.busybox;
-
-in
 dockerTools.build {
   name = "busybox";
-  tag = busybox.version;
+  tag = pkgsStatic.busybox.version;
 
   extraCommands = ''
-    cp -r ${busybox}/* .
+    cp -r ${pkgsStatic.busybox}/* .
   '';
 
   config = {

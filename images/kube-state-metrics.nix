@@ -1,4 +1,4 @@
-{ pkgs, lib, kube-state-metrics, dockerTools }:
+{ pkgs, lib, dockerTools, kube-state-metrics }:
 
 let
   package = kube-state-metrics;
@@ -6,7 +6,7 @@ let
 in
 dockerTools.build rec {
   name = "kube-state-metrics";
-  tag = package.version;
+  tag = "v${package.version}";
 
   contents = package;
 

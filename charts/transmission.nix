@@ -1,19 +1,16 @@
 { chartTools, dockerImages }:
 
 let
-  image = dockerImages.transmission; # TODO
+  inherit (dockerImages) transmission;
 
 in
-chartTools.buildChart rec {
+chartTools.buildSimpleChart rec {
   name = "transmission";
   version = "0.1.0";
-  appVersion = "3.0.0";
+  appVersion = transmission.imageTag;
 
   kind = "StatefulSet";
-  values.image = {
-    repository = "registry.st8ed.com/transmission";
-    tag = "${appVersion}@sha256:f01377245e82d7b22f683fcced2f41a5654974b4e95e854de97b772efb1333ac";
-  };
+  image.package = transmission;
 
   extraValues = ''
     auth:

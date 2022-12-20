@@ -2,7 +2,7 @@
 
 dockerTools.build {
   name = "prometheus-operator";
-  tag = prometheus-operator.version;
+  tag = "v${prometheus-operator.version}";
 
   contents = [ prometheus-operator ];
   config = {

@@ -1,17 +1,17 @@
-{ lib, go_1_17, buildGo117Module, fetchFromGitHub }:
+{ lib, go, buildGoModule, fetchFromGitHub }:
 
-buildGo117Module rec {
+buildGoModule rec {
   pname = "prometheus-operator";
-  version = "0.56.2";
+  version = "0.61.1";
 
   src = fetchFromGitHub {
     owner = "prometheus-operator";
     repo = "prometheus-operator";
-    rev = "86b60f698c95dd9b5c060ce81b29c4252a46110d"; #rev = "v${version}";
-    sha256 = "sha256-g4xJVOs4lcZjVZfczgn5ulbhshH/Wiv+4eFttS8bIUU=";
+    rev = "v${version}";
+    sha256 = "sha256-5KyNXSzOcCJQW28lJdDl6ydzDCBqHYBWwtxssJIPUlA=";
   };
 
-  vendorSha256 = "sha256-UhKWzaWkiqBuG5p6k9OidNbFalYk0IxxjGoca8J2A74=";
+  vendorSha256 = "sha256-fCdNM8YdqSvaDi+mwjwk7zS/Dbc/mCmv4SM7AeXP27Q=";
 
   CGO_ENABLED = "0";
 
@@ -26,7 +26,7 @@ buildGo117Module rec {
       "-X ${t}.BuildUser=nix@nixpkgs"
       "-X ${t}.BuildDate=unknown"
       "-X ${t}.Version=${version}"
-      "-X ${t}.GoVersion=${lib.getVersion go_1_17}"
+      "-X ${t}.GoVersion=${lib.getVersion go}"
     ];
 
   subPackages = [

@@ -1,0 +1,14 @@
+diff --git a/templates/alertmanager/alertmanager.yaml b/templates/alertmanager/alertmanager.yaml
+index 986f035..0a4cd22 100644
+--- a/templates/alertmanager/alertmanager.yaml
++++ b/templates/alertmanager/alertmanager.yaml
+@@ -24,9 +24,6 @@ spec:
+   image: "{{ $registry }}/{{ .Values.alertmanager.alertmanagerSpec.image.repository }}"
+   {{- end }}
+   version: {{ .Values.alertmanager.alertmanagerSpec.image.tag }}
+-  {{- if .Values.alertmanager.alertmanagerSpec.image.sha }}
+-  sha: {{ .Values.alertmanager.alertmanagerSpec.image.sha }}
+-  {{- end }}
+ {{- end }}
+   replicas: {{ .Values.alertmanager.alertmanagerSpec.replicas }}
+   listenLocal: {{ .Values.alertmanager.alertmanagerSpec.listenLocal }}

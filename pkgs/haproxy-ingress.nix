@@ -1,16 +1,16 @@
 { buildGoModule, haproxy, fetchFromGitHub, stdenv }:
 
 let
-  version = "0.13.7";
+  version = "0.13.9";
 
   src = fetchFromGitHub {
     owner = "jcmoraisjr";
     repo = "haproxy-ingress";
-    rev = "346c94fc1601b07c9793134231c2be2ed36025c6";
-    sha256 = "sha256-maFDMgBsMS7Mt1a1CiVROg6xcemP0+/cxFe5J9sGDAQ=";
+    rev = "v${version}";
+    hash = "sha256-OnIs9mQ7AaP2UI+PKCzDYZLHesUnjukvy8W8q/SLznc=";
   };
 
-  vendorSha256 = "sha256-S3jNa/zgwGa1YEgymPqgydTDQjAve2b2vxAyn0LhWjM=";
+  vendorSha256 = "sha256-ebOIp14y3fVrU8O5mhkEFntoTV20r1casNiKKWmsMVI=";
 
   json4lua = stdenv.mkDerivation {
     pname = "json4lua";

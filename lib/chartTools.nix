@@ -25,7 +25,17 @@ let
   };
 
   base = { config, ... }: {
-    options = with lib; {
+    options = with lib; let
+      imageType = types.submodule ({
+        options.repository = mkOption { type = types.str; };
+        options.tag = mkOption { type = types.str; };
+        options.package = mkOption { type = types.nullOr types.path; };
+        config.repository = mkDefault config.image.package.imageName;
+        config.tag = mkDefault config.image.package.imageTag;
+        config.package = mkDefault null;
+      });
+    in
+    {
       name = mkOption {
         type = types.str;
       };
@@ -49,12 +59,14 @@ let
         default = "Deployment";
       };
 
-      values = mkOption {
-        type = types.attrsOf types.anything;
-        default = {
-          image.repository = "";
-          image.tag = "";
-        };
+      image = mkOption {
+        type = imageType;
+        default = { };
+      };
+
+      images = mkOption {
+        type = types.attrsOf imageType;
+        default = { };
       };
 
       extraValues = mkOption {
@@ -99,7 +111,7 @@ let
         type = types.attrsOf (types.submodule ({ name, config, ... }: {
           options = {
             init = mkOption { type = types.bool; default = false; };
-            image = mkOption { type = types.str; };
+            image = mkOption { type = types.nullOr types.str; default = null; };
             ports = mkOption { type = types.anything; default = { }; };
             volumeMounts = mkOption { type = types.anything; default = { }; };
 
@@ -130,10 +142,18 @@ let
                       "    mountPath: ${toString p.value}\n"
                       ) (mapAttrsToList lib.nameValuePair config.volumeMounts)}'' else "";
                 in
+                let
+                  image =
+                    if (config.image == null) then
+                      "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+                    else
+                      "{{ .Values.images.${config.image}.repository }}:{{ .Values.images.${config.image}.tag }}";
+
+                in
                 ''
                   {{- define "@CHART_NAME@.container-${name}" -}}
                   name: ${name}
-                  image: "${config.image}"
+                  image: "${image}"
                   imagePullPolicy: {{ .Values.image.pullPolicy }}
                   ${ports}${volumeMounts}${config.extraConfig}
                   securityContext:
@@ -143,9 +163,6 @@ let
                   {{- end }}
                 '';
             };
-          };
-          config = {
-            image = (mkIf (!config.init) (mkDefault "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"));
           };
         }));
         default = { };
@@ -221,6 +238,7 @@ let
             ${optionalString (config.kind == "DaemonSet") ''
             mv templates/deployment.yaml templates/daemonset.yaml
             sed -i 's|^kind:.*$|kind: DaemonSet|g' templates/daemonset.yaml
+            sed -i '/^\s*replicas:.*$/d' templates/daemonset.yaml
             ''}
 
             for f in $(find . -type f); do
@@ -228,8 +246,18 @@ let
                     --subst-var CHART_NAME
             done
 
-            sed -i 's|^  repository:.*|  repository: ${config.values.image.repository}|g' values.yaml
-            sed -i 's|^  tag:.*|  tag: ${config.values.image.tag}|g' values.yaml
+            ${pkgs.chartTools.patchYaml "values.yaml" config.image.package.manifest {
+                ".image.repository" = ''.registry + "/" + .repository''; 
+                ".image.tag" = ''.tag + "@" + .digest'';
+            }}
+
+            ${concatMapStringsSep "\n" ({ name, value }: pkgs.chartTools.patchYaml "values.yaml"
+              value.package.manifest
+              {
+                ".images.${name}.repository" = ''.registry + "/" + .repository''; 
+                ".images.${name}.tag" = ''.tag + "@" + .digest'';
+              }
+            ) (mapAttrsToList nameValuePair config.images)}
 
             ${optionalString (config.extraValues != null) ''
             echo ${escapeShellArg config.extraValues} >>values.yaml
@@ -310,7 +338,21 @@ let
 in
 {
   chartTools = pkgs.lib.makeScope super.newScope (self: {
-    buildChart = module: (lib.evalModules {
+    patchYaml = path: src: values: with pkgs.lib; ''
+      ${escapeShellArgs [
+        "${pkgs.yq-go}/bin/yq"
+        "--inplace"
+
+        (''load("${src}") as $src | '' + (concatMapStringsSep " | "
+          ({ name, value }: ''${name} = ($src | ${value})'')
+          (mapAttrsToList nameValuePair values)
+        ))
+
+        path
+      ]}
+    '';
+
+    buildSimpleChart = module: (lib.evalModules {
       modules = [
         base
         module

@@ -1,9 +1,9 @@
-{ pkgs, lib, dockerTools, nfs-ganesha }:
+{ pkgs, lib, dockerTools, nfs-ganesha, busybox }:
 
 let
   entrypoint = pkgs.writeShellApplication {
     name = "ganesha-entrypoint.sh";
-    runtimeInputs = with pkgs; [ busybox ];
+    runtimeInputs = [ busybox ];
     text = ''
       cat - <<EOF >/var/run/ganesha/ganesha.conf
       NFS_CORE_PARAM {

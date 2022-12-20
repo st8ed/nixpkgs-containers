@@ -1,15 +1,18 @@
 { chartTools, dockerImages }:
 
-chartTools.buildChart rec {
+let
+  inherit (dockerImages) bind busybox;
+
+in
+chartTools.buildSimpleChart rec {
   name = "bind";
   version = "0.1.2";
-  appVersion = "9.18.3";
+  appVersion = bind.imageTag;
 
   kind = "Deployment";
-  values.image = {
-    repository = "registry.st8ed.com/bind";
-    tag = "${appVersion}@sha256:abbe3ace703299e9f6c22f6ecab81cb75315257e10220bc330a04fa86be1eb6d";
-  };
+
+  image.package = bind;
+  images.busybox.package = busybox;
 
   extraValues = ''
     service:
@@ -105,7 +108,7 @@ chartTools.buildChart rec {
   containers."init" = {
     init = true;
 
-    image = "registry.st8ed.com/busybox:1.35.0@sha256:492e32c46e5cbf2ec433a6134768f66603d0b203b4c3cf4430f67628de4903c8";
+    image = "busybox";
     volumeMounts = {
       "scripts" = "/scripts";
       "zones" = "/etc/bind/zones";

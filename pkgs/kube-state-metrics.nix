@@ -1,17 +1,17 @@
-{ lib, go_1_17, buildGo117Module, fetchFromGitHub }:
+{ lib, go, buildGoModule, fetchFromGitHub }:
 
-buildGo117Module rec {
+buildGoModule rec {
   pname = "kube-state-metrics";
-  version = "2.4.2";
+  version = "2.7.0";
 
   src = fetchFromGitHub {
     owner = "kubernetes";
     repo = "kube-state-metrics";
     rev = "v${version}";
-    sha256 = "sha256-Yui+m1jY4wnmJyK4VDEA/OLu2EZ3kWdcUyS/FHRQpm4=";
+    sha256 = "sha256-6uYylGhM8Q/YILqD2wS803ijcuOLyjD0NpCBTOBVe4Y=";
   };
 
-  vendorSha256 = "sha256-0N4W/TG9xxme7zLXUMqdexTadar3Ceml3mRBik4MsAE=";
+  vendorSha256 = "sha256-fLZdmi5TCUrwuwWPUrVCeqznCL1fQn+MxrV3pJuut6k=";
 
   CGO_ENABLED = "0";
 
@@ -27,7 +27,7 @@ buildGo117Module rec {
       "-X ${t}/version.BuildUser=nix@nixpkgs"
       "-X ${t}/version.BuildDate=unknown"
       "-X ${t}/version.Version=${version}"
-      "-X ${t}/version.GoVersion=${lib.getVersion go_1_17}"
+      "-X ${t}/version.GoVersion=${lib.getVersion go}"
     ];
 
   doCheck = false;

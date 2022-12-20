@@ -2,7 +2,7 @@
 
 dockerTools.buildWithUsers rec {
   name = "prometheus";
-  tag = prometheus.version;
+  tag = "v${prometheus.version}";
 
   contents = [ prometheus ];
 

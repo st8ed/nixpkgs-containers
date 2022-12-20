@@ -97,7 +97,7 @@ let
 in
 dockerTools.buildWithUsers rec {
   name = "grafana";
-  tag = grafana.version;
+  tag = "v${grafana.version}";
 
   contents = [
     dockerTools.binSh

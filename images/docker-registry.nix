@@ -1,4 +1,4 @@
-{ dockerTools, nixos, lib, docker-distribution, enableProxy ? false }:
+{ lib, dockerTools, nixos, docker-distribution, enableProxy ? false }:
 
 let
   system = nixos {

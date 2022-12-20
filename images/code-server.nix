@@ -1,6 +1,7 @@
 { pkgs, lib, dockerTools, code-server, nixUnstable, bashInteractive, coreutils, gitMinimal, procps, openssh, iana-etc, cacert }:
 
 # TODO: Run OpenSSH server in background
+# TODO: Use NixNG
 
 let
   workDir = "/home/coder";
@@ -9,7 +10,7 @@ dockerTools.buildWithUsers rec {
   name = "code-server";
   tag = code-server.version;
 
-  withNixDb = true;
+  # withNixDb = true;
 
   contents = [
     dockerTools.binSh

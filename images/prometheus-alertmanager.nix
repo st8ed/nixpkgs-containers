@@ -1,16 +1,15 @@
-{ lib, dockerTools, prometheus-alertmanager }:
+{ pkgs, lib, dockerTools, prometheus-alertmanager }:
 
 dockerTools.build rec {
   name = "prometheus-alertmanager";
-  tag = prometheus-alertmanager.version;
+  tag = "v${prometheus-alertmanager.version}";
 
   contents = [
     prometheus-alertmanager
   ];
 
   fakeRootCommands = ''
-    install -dm770 -o 255 -g 255 ./etc/alertmanager
-    install -dm770 -o 255 -g 255 ./var/lib/alertmanager
+    install -dm777 ./var/lib/alertmanager
   '';
 
   config = {
