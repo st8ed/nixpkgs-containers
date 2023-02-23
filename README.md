@@ -1,3 +1,6 @@
+This repository contains a collection of OCI container images & Helm charts build using Nix.
+Most of images mimic specificied "replacement" images.
+
 | Image  | Replacement image | Description |
 |---|---|---|
 | st8ed/bind:9.18.8 |  | Domain name server |

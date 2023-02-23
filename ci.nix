@@ -83,6 +83,9 @@ in
 
   README = with pkgs; let
     pkg = with lib; writeText "README.md" ''
+      This repository contains a collection of OCI container images & Helm charts build using Nix.
+      Most of images mimic specificied "replacement" images.
+
       | Image  | Replacement image | Description |
       |---|---|---|
       ${concatMapStringsSep "\n" (v:
