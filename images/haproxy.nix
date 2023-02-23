@@ -60,7 +60,7 @@ dockerTools.buildWithUsers {
 
   meta = with lib; {
     description = "HAProxy TCP/HTTP Load Balancer";
-    replacementImage = "library/haproxy";
+    replacementImage = "docker.io/library/haproxy";
     replacementImageUrl = "https://github.com/docker-library/haproxy/blob/master/2.7/Dockerfile";
 
     license = licenses.gpl2;

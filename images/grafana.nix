@@ -165,7 +165,7 @@ dockerTools.buildWithUsers rec {
 
   meta = with lib; {
     description = "Grafana docker image";
-    replacementImage = "grafana/grafana";
+    replacementImage = "docker.io/grafana/grafana";
     replacementImageUrl = "https://github.com/grafana/grafana/blob/main/packaging/docker/ubuntu.Dockerfile";
 
     license = licenses.agpl3;

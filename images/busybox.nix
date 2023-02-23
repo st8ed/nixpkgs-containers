@@ -15,7 +15,7 @@ dockerTools.build {
 
   meta = with lib; {
     description = "Static build of busybox";
-    replacementImage = "library/busybox";
+    replacementImage = "docker.io/library/busybox";
     replacementImageUrl = "https://hub.docker.com/_/busybox";
 
     license = licenses.gpl2Only;

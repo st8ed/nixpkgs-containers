@@ -46,7 +46,7 @@ dockerTools.build {
 
   meta = with lib; {
     description = "Collect configmaps and store them in a path";
-    replacementImage = "kiwigrid/k8s-sidecar";
+    replacementImage = "docker.io/kiwigrid/k8s-sidecar";
     replacementImageUrl = "https://github.com/kiwigrid/k8s-sidecar/blob/master/Dockerfile";
 
     license = licenses.mit;

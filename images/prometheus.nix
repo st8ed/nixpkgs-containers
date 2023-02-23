@@ -39,7 +39,7 @@ dockerTools.buildWithUsers rec {
 
   meta = with lib; {
     description = "Prometheus";
-    replacementImage = "prom/prometheus";
+    replacementImage = "docker.io/prom/prometheus";
     replacementImageUrl = "https://github.com/prometheus/prometheus/blob/main/Dockerfile";
 
     license = licenses.asl20;

@@ -78,14 +78,14 @@ rec {
       This repository contains a collection of OCI container images & Helm charts built with Nix.
       Most of images mimic specificied replacement images.
 
-      | Image  | Replacement image | Description |
-      |---|---|---|
+      | Image  | Replacement image |
+      |---|---|
       ${concatMapStringsSep "\n" (v:
       "| ${v.imageName}:${v.imageTag} " +
       "| ${optionalString (v.meta ? replacementImage)
         "[${v.meta.replacementImage}](${v.meta.replacementImageUrl})"
       } " +
-      "| ${optionalString (v.meta ? description) v.meta.description} " +
+      # "| ${optionalString (v.meta ? description) v.meta.description} " +
       "|"
       ) (builtins.attrValues allImages)}
     '';

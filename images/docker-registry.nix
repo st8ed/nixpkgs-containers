@@ -36,7 +36,7 @@ dockerTools.buildFromNixos rec {
 
   meta = with lib; {
     description = "Registry implementation for storing and distributing Docker images";
-    replacementImage = "library/registry";
+    replacementImage = "docker.io/library/registry";
     replacementImageUrl = "https://hub.docker.com/_/registry";
 
     license = licenses.asl20;

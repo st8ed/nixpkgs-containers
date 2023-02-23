@@ -31,7 +31,7 @@ dockerTools.build rec {
 
   meta = with lib; {
     description = "Prometheus Alert Manager";
-    replacementImage = "prom/alertmanager";
+    replacementImage = "docker.io/prom/alertmanager";
     replacementImageUrl = "https://github.com/prometheus/alertmanager/blob/main/Dockerfile";
 
     license = licenses.asl20;

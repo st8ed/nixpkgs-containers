@@ -71,7 +71,7 @@ dockerTools.buildWithUsers {
 
   meta = with lib; {
     description = "A self-hosted Git service";
-    replacementImage = "gitea/gitea:latest-rootless";
+    replacementImage = "docker.io/gitea/gitea:latest-rootless";
     replacementImageUrl = "https://github.com/go-gitea/gitea/blob/main/Dockerfile.rootless";
 
     license = licenses.mit;

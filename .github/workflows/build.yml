@@ -27,7 +27,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ vars.DOCKER_USERNAME }}
+          username: st8ed 
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Publish
@@ -36,4 +36,4 @@ jobs:
           nix run .#ci.publish docker.io
           echo "::endgroup::"
 
-          nix run .#ci.print-digests >>GITHUB_STEP_SUMMARY
+          nix run .#ci.print-digests >>$GITHUB_STEP_SUMMARY
