@@ -4,7 +4,7 @@ let
   allCharts = pkgs.lib.filterAttrs (n: v: (builtins.typeOf v) == "set") pkgs.helmCharts;
 
 in
-{
+rec {
   images = with pkgs; linkFarmFromDrvs "nixpkgs-containers" (
     builtins.attrValues allImages
   );
@@ -13,6 +13,10 @@ in
     map (v: v.stream) (builtins.attrValues allImages)
   );
 
+  manifests = with pkgs; linkFarm "nixpkgs-containers" (
+    pkgs.lib.mapAttrsToList (n: v: { name = n; path = v.manifest; }) allImages
+  );
+  
   charts = with pkgs; linkFarmFromDrvs "nixpkgs-containers-charts" (
     builtins.attrValues allCharts
   );
@@ -45,46 +49,34 @@ in
         repositories=("$@")
       fi
 
+
       function publish() {
-        local flakeUri=$1
-        local out
-        local manifest
-          
-        read -r -d '\n' out \
-          < <(nix path-info "$flakeUri" 2>/dev/null) \
-          || true
-          
-        if [ -z "$out" ]; then
-          echo "Unable to get package path for $flakeUri. Is it built?" >&2
-          exit 1
-        fi
-          
-        read -r -d '\n' manifest \
-          < <(nix path-info "$flakeUri.manifest" 2>/dev/null) \
-          || true
+        local manifest="${manifests}/$1"
 
         repository=$(jq -r '.repository' "$manifest")
         tag=$(jq -r '.tag' "$manifest")
+        archive=$(jq -r '."oci-archive"' "$manifest")
 
-        skopeo copy \
-            "oci-archive:$out" \
-            "docker://$registry/$repository:$tag"
+        for _tag in "$tag" latest; do
+          echo "Pushing $registry/$repository:$_tag"
 
-        skopeo copy \
-            "oci-archive:$out" \
-            "docker://$registry/$repository:latest"
+          skopeo copy --quiet \
+              --dest-precompute-digests \
+              "oci-archive:$archive" \
+              "docker://$registry/$repository:$_tag"
+        done
       }
 
       for name in "''${repositories[@]}"; do
-        publish "${builtins.toString ./.}#$name"
+        publish "$name"
       done
     '';
   };
 
   README = with pkgs; let
     pkg = with lib; writeText "README.md" ''
-      This repository contains a collection of OCI container images & Helm charts build using Nix.
-      Most of images mimic specificied "replacement" images.
+      This repository contains a collection of OCI container images & Helm charts built with Nix.
+      Most of images mimic specificied replacement images.
 
       | Image  | Replacement image | Description |
       |---|---|---|

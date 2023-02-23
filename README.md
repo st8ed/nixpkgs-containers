@@ -1,5 +1,5 @@
-This repository contains a collection of OCI container images & Helm charts build using Nix.
-Most of images mimic specificied "replacement" images.
+This repository contains a collection of OCI container images & Helm charts built with Nix.
+Most of images mimic specificied replacement images.
 
 | Image  | Replacement image | Description |
 |---|---|---|

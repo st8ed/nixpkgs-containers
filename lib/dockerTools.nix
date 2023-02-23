@@ -39,7 +39,8 @@ pkgs: super: {
           ' .registry = "${self.options.registry}"
           | .repository = "${stream.imageName}"
           | .tag = "${stream.imageTag}"
-          | .digest = $digest' \
+          | .digest = $digest
+          | ."oci-archive" = "'$out'"' \
       > $manifest
     '';
 
