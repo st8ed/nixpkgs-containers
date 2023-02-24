@@ -219,6 +219,9 @@ let
           buildInputs = with pkgs; [ gnused kubernetes-helm yamllint ];
 
           buildPhase = ''
+            mkdir -p chart
+            pushd chart
+
             cp -r ${config.template}/. .
             chmod a+rwx templates Chart.yaml
 
@@ -262,15 +265,17 @@ let
             ${optionalString (config.extraValues != null) ''
             echo ${escapeShellArg config.extraValues} >>values.yaml
             ''}
+
+            popd
           '';
 
           checkPhase = ''
-            helm lint .
-            helm template . | yamllint -
+            helm lint ./chart
+            helm template ./chart | yamllint -
           '';
 
           installPhase = ''
-            cp -r . $out
+            cp -r ./chart $out
           '';
 
           CHART_NAME = config.name;
