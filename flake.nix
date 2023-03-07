@@ -11,16 +11,7 @@
 
       supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
 
-      # This prefix is used in all images and changing it will
-      # force rebuild of every image tarball.
-      # Can be empty.
-      repositoryPrefix = "st8ed/";
-
-      # This registry is be backed into all image tarballs' metadata,
-      # but not the actual image tarballs. It is used for refencing default
-      # image sources in Helm charts.
-      # Changing leads to rebuild of every image tarball.
-      # Can be empty.
+      repositoryPrefix = "docker.io/st8ed/";
       registry = "docker.io";
 
       forAllSystems = lib.genAttrs supportedSystems;
@@ -30,15 +21,18 @@
       });
     in
     {
+      inherit repositoryPrefix;
+
       packages = forAllSystems (system: with nixpkgsFor."${system}";
         dockerImages
-        // { inherit helmCharts; }
+        // { inherit helmCharts dockerTools chartTools kustomizePackages; }
         // { ci = callPackage ./ci.nix { }; }
       );
 
       overlay = lib.composeManyExtensions [
         (import ./lib/dockerTools.nix)
         (import ./lib/chartTools.nix)
+        (import ./lib/kustomizePackages.nix)
         (pkgs: super: {
           dockerTools = super.dockerTools.overrideScope' (self: super: {
             options = super.options.overrideScope' (_: _: {

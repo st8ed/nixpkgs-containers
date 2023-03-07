@@ -8,6 +8,7 @@ pkgs: super: {
     docker-registry = pkgs.callPackage ./images/docker-registry.nix { };
     etcd = pkgs.callPackage ./images/etcd.nix { };
     flannel = pkgs.callPackage ./images/flannel.nix { };
+    flannel-cni-plugin = pkgs.callPackage ./images/flannel-cni-plugin.nix { };
     gitea = pkgs.callPackage ./images/gitea.nix { };
     grafana = pkgs.callPackage ./images/grafana.nix { };
     haproxy-ingress = pkgs.callPackage ./images/haproxy-ingress.nix { };

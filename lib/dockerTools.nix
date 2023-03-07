@@ -63,6 +63,8 @@ pkgs: super: {
             imageShortName = args_.name;
             imageTag = args.tag;
 
+            imageReference = "${args.name}:${args.tag}";
+
             inherit stream streamDebug;
 
             testLocal = pkgs.writeScriptBin "container-shell" ''

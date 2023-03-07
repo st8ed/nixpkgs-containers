@@ -357,6 +357,12 @@ in
       ]}
     '';
 
+    patchKustomizeImages = file: ''
+      yq --inplace '.images | map(select(has("digest")) |= . + {"digest": load(.digest).digest})' ${
+        pkgs.lib.escapeShellArg file
+      }
+    '';
+
     buildSimpleChart = module: (lib.evalModules {
       modules = [
         base

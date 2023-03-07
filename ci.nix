@@ -16,7 +16,7 @@ rec {
   manifests = with pkgs; linkFarm "nixpkgs-containers" (
     pkgs.lib.mapAttrsToList (n: v: { name = n; path = v.manifest; }) allImages
   );
-  
+
   charts = with pkgs; linkFarmFromDrvs "nixpkgs-containers-charts" (
     builtins.attrValues allCharts
   );
@@ -78,7 +78,7 @@ rec {
       This repository contains a collection of OCI container images & Helm charts built with Nix.
       Most of images mimic specificied replacement images.
 
-      | Image  | Replacement image |
+      | Image  | Drop-in replacement image |
       |---|---|
       ${concatMapStringsSep "\n" (v:
       "| ${v.imageName}:${v.imageTag} " +
