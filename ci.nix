@@ -36,9 +36,6 @@ rec {
     text = ''
       # Note: it uses "nix" from PATH
 
-      registry=$1
-      shift 1
-
       repositories=()
 
       if [ $# -eq 0 ]; then
@@ -58,12 +55,12 @@ rec {
         archive=$(jq -r '."oci-archive"' "$manifest")
 
         for _tag in "$tag" latest; do
-          echo "Pushing $registry/$repository:$_tag"
+          echo "Pushing $repository:$_tag"
 
           skopeo copy --quiet \
               --dest-precompute-digests \
               "oci-archive:$archive" \
-              "docker://$registry/$repository:$_tag"
+              "docker://$repository:$_tag"
         done
       }
 

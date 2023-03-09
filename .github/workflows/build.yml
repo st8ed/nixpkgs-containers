@@ -33,7 +33,7 @@ jobs:
       - name: Publish
         run: |
           echo "::group::Publishing images"
-          nix run .#ci.publish docker.io
+          nix run .#ci.publish
           echo "::endgroup::"
 
           nix run .#ci.print-digests >>$GITHUB_STEP_SUMMARY
