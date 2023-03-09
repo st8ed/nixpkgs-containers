@@ -9,7 +9,7 @@ dockerTools.build {
   extraCommands = ''
     mkdir -p ./opt/bin
     ln -sf ${flannel}/bin/flannel ./opt/bin/flanneld
-    
+
     # Necessary for 'cp' command used
     # by official Kubernetes distribution via manifest
     mkdir -p ./bin

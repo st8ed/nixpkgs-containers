@@ -13,6 +13,7 @@
 
       repositoryPrefix = "docker.io/st8ed/";
       registry = "docker.io";
+      namespace = "com.st8ed.";
 
       forAllSystems = lib.genAttrs supportedSystems;
       nixpkgsFor = lib.genAttrs supportedSystems (system: import nixpkgs {
@@ -24,19 +25,28 @@
       inherit repositoryPrefix;
 
       packages = forAllSystems (system: with nixpkgsFor."${system}";
-        dockerImages
-        // { inherit helmCharts dockerTools chartTools kustomizePackages; }
+        dockerImages // flatpakImages
+        // { inherit helmCharts kustomizePackages; }
+        // { inherit dockerTools chartTools; }
         // { ci = callPackage ./ci.nix { }; }
+        // { inherit pkgs; }
       );
 
       overlay = lib.composeManyExtensions [
         (import ./lib/dockerTools.nix)
+        (import ./lib/flatpakTools.nix)
         (import ./lib/chartTools.nix)
-        (import ./lib/kustomizePackages.nix)
+        (import ./lib/kustomizeTools.nix)
         (pkgs: super: {
           dockerTools = super.dockerTools.overrideScope' (self: super: {
             options = super.options.overrideScope' (_: _: {
               inherit repositoryPrefix registry;
+            });
+          });
+
+          flatpakTools = super.flatpakTools.overrideScope' (self: super: {
+            options = super.options.overrideScope' (_: _: {
+              inherit namespace;
             });
           });
 
@@ -50,8 +60,10 @@
             inherit name config;
           };
         })
-        (import ./images.nix)
-        (import ./charts.nix)
+        (import ./pkgs/dockerImages.nix)
+        (import ./pkgs/flatpakImages.nix)
+        (import ./pkgs/helmCharts.nix)
+        (import ./pkgs/kustomizePackages.nix)
       ];
     };
 }

@@ -19,10 +19,17 @@ dockerTools.buildWithUsers {
   };
 
   contents = [
-    haproxy
     iana-etc
     dockerTools.binSh
     dockerTools.usrBinEnv
+
+    (pkgs.buildEnv {
+      name = "container-env";
+      extraPrefix = "/run/system";
+      paths = [
+        haproxy
+      ];
+    })
   ];
 
   config = {
@@ -52,8 +59,9 @@ dockerTools.buildWithUsers {
     StopSignal = "SIGUSR1";
     User = "haproxy:haproxy";
 
+    WorkingDir = "/var/lib/haproxy";
     Env = [
-      "PATH=/bin"
+      "PATH=/bin:/run/system/bin"
       "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt"
     ];
   };

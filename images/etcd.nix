@@ -1,6 +1,6 @@
 { lib, dockerTools, etcd_3_5 }:
 
-# TODO: Add Kubernetes migration script! 
+# TODO: Add Kubernetes migration script!
 
 let
   etcd = etcd_3_5;
@@ -12,7 +12,7 @@ dockerTools.build {
 
   extraCommands = ''
     mkdir -p ./bin
-      
+
     cp ${etcd}/bin/etcd ./bin/
     cp ${etcd}/bin/etcdctl ./bin/
   '';

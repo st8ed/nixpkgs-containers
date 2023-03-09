@@ -1,59 +1,80 @@
-{ buildGoModule, haproxy, fetchFromGitHub, stdenv }:
+{ pkgs, lua, buildGoModule, luaPackages, haproxy, fetchFromGitHub, stdenv }:
 
 let
-  version = "0.13.9";
-
-  src = fetchFromGitHub {
-    owner = "jcmoraisjr";
-    repo = "haproxy-ingress";
-    rev = "v${version}";
-    hash = "sha256-OnIs9mQ7AaP2UI+PKCzDYZLHesUnjukvy8W8q/SLznc=";
-  };
-
-  vendorSha256 = "sha256-ebOIp14y3fVrU8O5mhkEFntoTV20r1casNiKKWmsMVI=";
-
-  json4lua = stdenv.mkDerivation {
+  json4lua = with luaPackages; buildLuarocksPackage rec {
     pname = "json4lua";
-    version = "1.0.0";
+    version = "1.0.0-1";
 
     src = fetchFromGitHub {
       owner = "craigmj";
       repo = "json4lua";
-      rev = "40fb13b0ec4a70e36f88812848511c5867bed857";
-      sha256 = "sha256-RPibcBzprWrNtt/MrwXxx77rd70btXGqDywnvf0yHZw=";
+      rev = "37b09f750f062fcf7a3a2e0d4e0f378fdaf665c6";
+      sha256 = "sha256-0BjiR6cAQhQf6JyccoCYnhX9/ZSobzn31rnT52w1Td4=";
     };
 
-    phases = "unpackPhase installPhase";
-
-    installPhase = ''
-      mkdir -p $out/share/lua/5.3
-      cp json/json.lua $out/share/lua/5.3/
+    preConfigure = ''
+      sed -i 's/version="1\.0\.0"/version="1.0.0-1"/' *-1.0.0-1.rockspec
+      sed -i '/"luasocket"/d' *-1.0.0-1.rockspec
     '';
+
+    disabled = with lua; luaOlder "5.2";
+
+    propagatedBuildInputs = [
+      # Do not propagate it as this functionality is not essential for haproxy
+      # luasocket
+    ];
   };
 
 in
 buildGoModule rec {
   pname = "haproxy-ingress";
+  version = "0.14.2";
 
-  inherit version src vendorSha256;
+  src = fetchFromGitHub {
+    owner = "jcmoraisjr";
+    repo = "haproxy-ingress";
+    rev = "v${version}";
+    hash = "sha256-e7U/WeARc/G+5ZFoZgwC4Izk+yxUNIuakSaExWQoLOo=";
+  };
 
-  buildPhase = ''
-    runHook preBuild
-    # patchShebangs .
-    make GIT_REPO=https://github.com/jcmoraisjr/haproxy-ingress GIT_COMMIT=${src.rev}
-    runHook postBuild
+  vendorSha256 = "sha256-JqaX1CUsdLo9t3hW8+/lpDnevfjwjIVg7NJjM26mXdA=";
+
+  outputs = [ "out" "rootfs" ];
+
+  propagatedBuildInputs = [
+    luaPackages.wrapLua
+    json4lua
+  ];
+
+  CGO_ENABLED = "0";
+
+  ldflags =
+    let
+      t = "github.com/jcmoraisjr/haproxy-ingress/pkg/version";
+    in
+    [
+      "-s"
+      "-w"
+      "-X ${t}.RELEASE=local"
+      "-X ${t}.COMMIT=${src.rev}"
+      "-X ${t}.REPO=${src.url}"
+    ];
+
+  subPackages = [
+    "pkg"
+  ];
+
+  postFixup = ''
+    wrapLuaPrograms
   '';
 
-  # doTests = false;
+  postInstall = ''
+    mv $out/bin/pkg $out/bin/haproxy-ingress-controller
 
-  installPhase = ''
-    mkdir -p $out
-      
-    # TODO: Move to passthrough packages?
-    cp -r rootfs/* $out/
-    chmod +x $out/*.sh
-      
-    # TODO: Proper Lua dependencies?
-    cp -r ${json4lua}/* $out/
+    mkdir -p $rootfs
+    ln -s $out/bin/haproxy-ingress-controller $rootfs/haproxy-ingress-controller
+
+    cp -r $src/rootfs/. $rootfs/
+    chmod +x $rootfs/*.sh
   '';
 }

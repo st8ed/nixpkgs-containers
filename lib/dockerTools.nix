@@ -101,7 +101,7 @@ pkgs: super: {
                   "$@" \
                   ${args.name}:${args.tag}
               '';
-          };
+          } // (stream.passthru);
         });
 
       in
@@ -139,7 +139,7 @@ pkgs: super: {
             '') groupList}
           ''}
           chmod 644 ./etc/group
-          
+
           echo -n >./etc/gshadow ${lib.escapeShellArg ''
             root:x::
             ${lib.concatMapStrings (group: ''

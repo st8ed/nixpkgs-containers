@@ -53,7 +53,7 @@ let
       fi
 
       ln -sfn "${configFile}/postgresql.conf" "$PGDATA/postgresql.conf"
-      
+
       exec postgres "$@"
     '';
   };

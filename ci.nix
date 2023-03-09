@@ -38,7 +38,7 @@ rec {
 
       registry=$1
       shift 1
-        
+
       repositories=()
 
       if [ $# -eq 0 ]; then
@@ -94,7 +94,7 @@ rec {
   writeShellApplication {
     name = "nixpkgs-containers-update-readme";
     text = ''
-      cp -vf "${pkg}" ./README.md
+      cp -vf ${pkg} ./README.md
     '';
   };
 }

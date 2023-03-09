@@ -1,0 +1,49 @@
+diff --git a/haproxy-ingress/templates/_podtemplate.yaml b/haproxy-ingress/templates/_podtemplate.yaml
+index f466545..9b29112 100644
+--- a/haproxy-ingress/templates/_podtemplate.yaml
++++ b/haproxy-ingress/templates/_podtemplate.yaml
+@@ -18,6 +18,9 @@ spec:
+     {{- toYaml .Values.controller.podAffinity | nindent 4 }}
+ {{- end }}
+   serviceAccountName: {{ include "haproxy-ingress.serviceAccountName" . }}
++{{- if .Values.controller.haproxy.enabled }}
++  automountServiceAccountToken: false
++{{- end }}
+ {{- if or .Values.controller.haproxy.enabled .Values.controller.initContainers }}
+   initContainers:
+ {{- if .Values.controller.haproxy.enabled }}
+@@ -106,6 +109,9 @@ spec:
+           name: lib
+         - mountPath: /var/run/haproxy
+           name: run
++        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
++          name: kube-api-access
++          readOnly: true
+ {{- end }}
+ {{- if or .Values.controller.template .Values.controller.templateFile }}
+         - name: haproxy-template
+@@ -250,6 +256,24 @@ spec:
+       emptyDir: {}
+     - name: run
+       emptyDir: {}
++    - name: kube-api-access
++      projected:
++        defaultMode: 420
++        sources:
++        - serviceAccountToken:
++            expirationSeconds: 3607
++            path: token
++        - configMap:
++            items:
++            - key: ca.crt
++              path: ca.crt
++            name: kube-root-ca.crt
++        - downwardAPI:
++            items:
++            - fieldRef:
++                apiVersion: v1
++                fieldPath: metadata.namespace
++              path: namespace
+ {{- end }}
+ {{- if or .Values.controller.template .Values.controller.templateFile }}
+     - name: haproxy-template

@@ -12,7 +12,7 @@ let
       helm create nix-chart
     '';
 
-    patches = [ ./chart.patch ];
+    patches = [ ./00-helm-chart.patch ];
 
     buildPhase = ''
       find ./nix-chart -type f -exec \
@@ -250,14 +250,14 @@ let
             done
 
             ${pkgs.chartTools.patchYaml "values.yaml" config.image.package.manifest {
-                ".image.repository" = ''.registry + "/" + .repository''; 
+                ".image.repository" = ''.registry + "/" + .repository'';
                 ".image.tag" = ''.tag + "@" + .digest'';
             }}
 
             ${concatMapStringsSep "\n" ({ name, value }: pkgs.chartTools.patchYaml "values.yaml"
               value.package.manifest
               {
-                ".images.${name}.repository" = ''.registry + "/" + .repository''; 
+                ".images.${name}.repository" = ''.registry + "/" + .repository'';
                 ".images.${name}.tag" = ''.tag + "@" + .digest'';
               }
             ) (mapAttrsToList nameValuePair config.images)}

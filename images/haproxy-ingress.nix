@@ -1,4 +1,5 @@
 { dockerTools
+, pkgs
 , lib
 , haproxy
 , haproxy-ingress
@@ -6,8 +7,6 @@
 , iana-etc
 , coreutils
 , socat
-, openssl
-, lua5_3
 , dumb-init
 , cacert
 }:
@@ -19,7 +18,7 @@ dockerTools.buildWithUsers {
   users = {
     users.haproxy = {
       name = "haproxy";
-      uid = 1001;
+      uid = 99;
       group = "haproxy";
       home = "/var/lib/haproxy";
       extraDirectories = [
@@ -29,7 +28,7 @@ dockerTools.buildWithUsers {
     };
     groups.haproxy = {
       name = "haproxy";
-      gid = 1001;
+      gid = 99;
       members = [ "haproxy" ];
     };
   };
@@ -39,25 +38,43 @@ dockerTools.buildWithUsers {
     chmod 0 ./var/empty
 
     mkdir -p ./tmp
-    chmod 1777 /tmp
+    chmod 1777 ./tmp
+
+    # This is very important because the controller can share
+    # directories with another container running another image
+    # so we can't use this in "contents" because it will be processed
+    # via "symlinkJoin" from "streamLayeredImage"
+    cp  -r ${haproxy-ingress.rootfs}/. .
+    chmod -R ug+w ./etc/haproxy ./etc/lua
   '';
 
   contents = [
-    haproxy
-    haproxy-ingress
     iana-etc
     dockerTools.binSh
     dockerTools.usrBinEnv
+
+    (pkgs.buildEnv {
+      name = "container-env";
+      extraPrefix = "/run/system";
+      paths = [
+        bash
+        coreutils
+        socat
+        dumb-init
+
+        haproxy
+      ];
+    })
   ];
 
   config = {
     Entrypoint = [ "/start.sh" ];
     Cmd = [ ];
 
-    StopSignal = "SIGTERM";
     User = "haproxy:haproxy";
+    StopSignal = "SIGTERM";
     Env = [
-      "PATH=${lib.makeBinPath [ bash coreutils socat openssl lua5_3 dumb-init ]}:/bin"
+      "PATH=/bin:/run/system/bin"
       "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt"
     ];
   };

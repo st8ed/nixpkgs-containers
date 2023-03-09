@@ -51,7 +51,7 @@ in
         "PATH=${lib.makeBinPath ([
       "/" "/usr/local"
     ] ++ (lib.optionals (binary == "kube-proxy") [
-      iptables 
+      iptables
       iproute
       conntrack-tools
     ]))}"
