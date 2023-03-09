@@ -53,6 +53,7 @@ flatpakTools.build {
     "--require-version=0.11.1"
 
     "--filesystem=/nix/store:ro"
+    "--filesystem=/run/current-system:ro"
     "--filesystem=xdg-download:rw"
     "--persist=.mozilla"
 
@@ -85,7 +86,7 @@ flatpakTools.build {
     #"--env=P11_KIT_DEBUG=all"
     "--env=GTK_USE_PORTAL=1"
     "--env=LOCALE_ARCHIVE=${glibcLocalesUtf8}/lib/locale/locale-archive"
-    "--env=FONTCONFIG_PATH=/nix/store/n1b8ljsj0mdjh65yfjgd4qsn8a5jzfwz-fontconfig-etc/etc/fonts"
+    "--env=FONTCONFIG_PATH=/run/current-system/etc/fonts"
 
     "--command=${launcher}/bin/firefox-launcher-${profile}"
   ];
