@@ -1,5 +1,17 @@
-This repository contains a collection of OCI container images & Helm charts built with Nix.
-Most of images mimic specificied replacement images.
+A collection of various artifacts (mostly images) built with Nix.
+
+### Docker (OCI) images
+
+Use:
+```
+$ docker run -it --rm st8ed/busybox
+```
+
+Build:
+```
+$ nix build github:st8ed/nixpkgs-containers#busybox
+$ docker load -i ./result
+```
 
 | Image  | Drop-in replacement image |
 |---|---|
@@ -45,3 +57,18 @@ Most of images mimic specificied replacement images.
 | docker.io/st8ed/prometheus-operator:v0.61.1 | [quay.io/prometheus-operator/prometheus-operator](https://github.com/prometheus-operator/prometheus-operator/blob/main/Dockerfile) |
 | docker.io/st8ed/socat:1.7.4.3 |  |
 | docker.io/st8ed/transmission:3.00 |  |
+
+### Helm charts
+
+All these charts use only repository's images and refers to them only with their digest.
+
+| Chart  | Version |
+|---|---|
+| bind-helmchart | 0.1.2 |
+| cert-manager | 1.11.0 |
+| gitea | 5.0.4 |
+| haproxy-ingress | 0.14.2 |
+| kube-prometheus-stack | 43.1.1 |
+| nfs-ganesha-helmchart | 0.1.0 |
+| postgresql-helmchart | 0.1.0 |
+| transmission-helmchart | 0.1.0 |

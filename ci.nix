@@ -72,8 +72,20 @@ rec {
 
   README = with pkgs; let
     pkg = with lib; writeText "README.md" ''
-      This repository contains a collection of OCI container images & Helm charts built with Nix.
-      Most of images mimic specificied replacement images.
+      A collection of various artifacts (mostly images) built with Nix.
+
+      ### Docker (OCI) images
+
+      Use:
+      ```
+      $ docker run -it --rm st8ed/busybox
+      ```
+
+      Build:
+      ```
+      $ nix build github:st8ed/nixpkgs-containers#busybox
+      $ docker load -i ./result
+      ```
 
       | Image  | Drop-in replacement image |
       |---|---|
@@ -85,6 +97,18 @@ rec {
       # "| ${optionalString (v.meta ? description) v.meta.description} " +
       "|"
       ) (builtins.attrValues allImages)}
+
+      ### Helm charts
+
+      All these charts use only repository's images and refers to them only with their digest.
+
+      | Chart  | Version |
+      |---|---|
+      ${concatMapStringsSep "\n" (v:
+      "| ${v.pname} " +
+      "| ${v.version} " +
+      "|"
+      ) (builtins.attrValues allCharts)}
     '';
 
   in
