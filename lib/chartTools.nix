@@ -211,7 +211,7 @@ let
 
         readOnly = true;
         default = pkgs.stdenv.mkDerivation {
-          pname = "${config.name}-helmchart";
+          pname = config.name;
           version = config.version;
 
           dontUnpack = true;

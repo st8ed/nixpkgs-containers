@@ -100,7 +100,7 @@ rec {
 
       ### Helm charts
 
-      All these charts use only repository's images and refers to them only with their digest.
+      All these charts use only repository's images and refer to them only with their digest.
 
       | Chart  | Version |
       |---|---|
